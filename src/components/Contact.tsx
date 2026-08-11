@@ -1,0 +1,92 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import { profile } from "@/content/profile";
+import { accents, ColorMark } from "./ColorMark";
+import { SectionLabel } from "./SectionLabel";
+
+const links = [
+  { label: "Email", href: `mailto:${profile.email}`, value: profile.email },
+  { label: "Phone", href: `tel:${profile.phone.replace(/\D/g, "")}`, value: profile.phone },
+  { label: "LinkedIn", href: profile.links.linkedin, value: "shravan-paladugula" },
+  { label: "GitHub", href: profile.links.github, value: "ShravanPaladugula" },
+  { label: "Devpost", href: profile.links.devpost, value: "ShravanPaladugula" },
+  { label: "Resume", href: profile.links.resume, value: "PDF" },
+];
+
+export function Contact() {
+  const reduce = useReducedMotion();
+
+  return (
+    <section
+      id="contact"
+      className="relative overflow-hidden border-t border-line section-pad"
+      aria-label="Contact"
+    >
+      <ColorMark color={accents.contact} variant="corner" />
+
+      <div className="relative z-10 mx-auto max-w-[1500px]">
+        <SectionLabel index="08" label="Contact" accent={accents.contact} />
+        <motion.h2
+          className="mb-6 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[1.02] tracking-tight"
+          initial={reduce ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+        >
+          Let’s build the next system.
+        </motion.h2>
+        <p className="mb-12 max-w-xl text-muted">
+          Open to software engineering internships and embedded / firmware roles.
+          Reach out directly.
+        </p>
+
+        <ul className="grid gap-0 border-t border-line sm:grid-cols-2">
+          {links.map((link, i) => (
+            <motion.li
+              key={link.label}
+              className="border-b border-line sm:odd:border-r"
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: i * 0.05 }}
+            >
+              <a
+                href={link.href}
+                target={link.href.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  link.href.startsWith("http") ? "noopener noreferrer" : undefined
+                }
+                className="group flex items-baseline justify-between gap-4 px-1 py-6 transition-colors hover:bg-fg/[0.03] sm:px-4"
+              >
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                  {link.label}
+                </span>
+                <span
+                  className="font-display text-lg font-semibold tracking-tight transition-colors sm:text-xl"
+                  style={{ ["--hov" as string]: accents.contact }}
+                >
+                  <span className="group-hover:text-[color:var(--hov)]">
+                    {link.value}
+                  </span>
+                </span>
+              </a>
+            </motion.li>
+          ))}
+        </ul>
+
+        <footer className="mt-16 flex flex-col gap-4 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+            © {new Date().getFullYear()} {profile.name}
+          </p>
+          <a
+            href="#top"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:text-fg"
+          >
+            Back to top ↑
+          </a>
+        </footer>
+      </div>
+    </section>
+  );
+}
