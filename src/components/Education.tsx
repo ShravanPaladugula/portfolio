@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { profile } from "@/content/profile";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 export function Education() {
@@ -14,9 +13,8 @@ export function Education() {
       id="education"
       aria-label="Education"
     >
-      <ColorMark color={accents.education} variant="bar" />
       <div className="relative z-10 mx-auto max-w-[1500px]">
-        <SectionLabel index="07" label="Education" accent={accents.education} />
+        <SectionLabel index="07" label="Education" />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
@@ -31,8 +29,7 @@ export function Education() {
           {profile.education.map((edu, i) => (
             <motion.div
               key={edu.school}
-              className="border border-line p-6 sm:p-8"
-              style={{ borderTopColor: accents.education, borderTopWidth: 2 }}
+              className="border border-line border-t-2 border-t-accent p-6 sm:p-8"
               initial={reduce ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

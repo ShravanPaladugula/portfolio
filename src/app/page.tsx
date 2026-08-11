@@ -7,7 +7,6 @@ import { Hero } from "@/components/Hero";
 import { Nav } from "@/components/Nav";
 import { Path } from "@/components/Path";
 import { ColorSeam } from "@/components/SectionLabel";
-import { accents } from "@/components/ColorMark";
 import { Systems } from "@/components/Systems";
 import { Work } from "@/components/Work";
 
@@ -17,21 +16,21 @@ export default function Home() {
       <Nav />
       <main className="relative z-10 flex-1">
         <Hero />
-        <ColorSeam color={accents.about} />
+        <ColorSeam />
         <About />
-        <ColorSeam color={accents.work} />
+        <ColorSeam />
         <Work />
-        <ColorSeam color={accents.systems} />
+        <ColorSeam />
         <Systems />
-        <ColorSeam color={accents.path} />
+        <ColorSeam />
         <Path />
-        <ColorSeam color={accents.awards} />
+        <ColorSeam />
         <Awards />
-        <ColorSeam color={accents.lab} />
+        <ColorSeam />
         <Gallery />
-        <ColorSeam color={accents.education} />
+        <ColorSeam />
         <Education />
-        <ColorSeam color={accents.contact} />
+        <ColorSeam />
         <Contact />
       </main>
     </>

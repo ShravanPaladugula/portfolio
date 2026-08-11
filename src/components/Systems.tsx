@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { profile } from "@/content/profile";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 const columns = [
@@ -20,9 +19,8 @@ export function Systems() {
       id="systems"
       aria-label="Systems"
     >
-      <ColorMark color={accents.systems} variant="bar" />
       <div className="relative z-10 mx-auto max-w-[1400px]">
-        <SectionLabel index="03" label="Systems" invert accent={accents.systems} />
+        <SectionLabel index="03" label="Systems" invert />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
@@ -51,9 +49,7 @@ export function Systems() {
                     key={item}
                     className="flex items-baseline gap-3 text-sm sm:text-[15px]"
                   >
-                    <span className="font-mono text-[10px]" style={{ color: accents.systems }}>
-                      ▸
-                    </span>
+                    <span className="font-mono text-[10px] text-accent">▸</span>
                     <span>{item}</span>
                   </li>
                 ))}

@@ -1,32 +1,37 @@
 @import "tailwindcss";
 
+/*
+  Palette: Ink / Porcelain / Signal
+  One accent only. Light bands = porcelain, dark bands = ink.
+*/
 :root {
-  --bg: #050505;
-  --fg: #f4f4f4;
-  --muted: #8a8a8a;
-  --line: #262626;
-  --invert: #efefef;
-  --invert-fg: #050505;
-  --invert-muted: #555555;
-  --invert-line: #d0d0d0;
-  --grain-opacity: 0.045;
-  --accent: #00e5ff;
-  --accent-2: #b8ff3c;
-  --accent-a: 0;
+  --ink: #0a0b0d;
+  --porcelain: #e9ebef;
+  --bg: var(--ink);
+  --fg: #f1f2f4;
+  --muted: #8b909a;
+  --line: #24272d;
+  --invert: var(--porcelain);
+  --invert-fg: var(--ink);
+  --invert-muted: #5c6370;
+  --invert-line: #c8ccd4;
+  --accent: #3dffc8;
+  --accent-strong: #2ae0b0;
+  --grain-opacity: 0.04;
 }
 
 html.light {
-  --bg: #f3f3f3;
-  --fg: #0a0a0a;
-  --muted: #5c5c5c;
-  --line: #d4d4d4;
-  --invert: #0a0a0a;
-  --invert-fg: #f3f3f3;
-  --invert-muted: #9a9a9a;
-  --invert-line: #2a2a2a;
-  --grain-opacity: 0.03;
-  --accent: #0090a8;
-  --accent-2: #5a9e00;
+  --bg: var(--porcelain);
+  --fg: var(--ink);
+  --muted: #5c6370;
+  --line: #c8ccd4;
+  --invert: var(--ink);
+  --invert-fg: #f1f2f4;
+  --invert-muted: #8b909a;
+  --invert-line: #24272d;
+  --accent: #0d9f78;
+  --accent-strong: #0b8a68;
+  --grain-opacity: 0.025;
 }
 
 @theme inline {
@@ -37,7 +42,6 @@ html.light {
   --color-invert: var(--invert);
   --color-invert-fg: var(--invert-fg);
   --color-accent: var(--accent);
-  --color-accent-2: var(--accent-2);
   --font-display: var(--font-syne);
   --font-sans: var(--font-space);
   --font-mono: var(--font-jetbrains);
@@ -66,12 +70,12 @@ body {
 }
 
 ::selection {
-  background: #ffe600;
-  color: #050505;
+  background: var(--accent);
+  color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2px solid #00e5ff;
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -126,12 +130,20 @@ body {
 }
 
 .band-invert ::selection {
-  background: #ff2d95;
-  color: #fff;
+  background: var(--accent);
+  color: var(--ink);
 }
 
 .text-accent {
   color: var(--accent);
+}
+
+.bg-accent {
+  background: var(--accent);
+}
+
+.border-accent {
+  border-color: var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

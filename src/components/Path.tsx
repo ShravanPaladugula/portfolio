@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { experience, leadership, type ExperienceItem } from "@/content/experience";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 export function Path() {
@@ -18,9 +17,8 @@ export function Path() {
       className="relative overflow-hidden section-pad"
       aria-label="Experience and leadership"
     >
-      <ColorMark color={accents.path} variant="dot" />
       <div className="relative z-10 mx-auto max-w-[1400px]">
-        <SectionLabel index="04" label="Path" accent={accents.path} />
+        <SectionLabel index="04" label="Path" />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}

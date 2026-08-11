@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { awards } from "@/content/experience";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 export function Awards() {
@@ -14,9 +13,8 @@ export function Awards() {
       id="awards"
       aria-label="Awards"
     >
-      <ColorMark color={accents.awards} variant="corner" />
       <div className="relative z-10 mx-auto max-w-[1400px]">
-        <SectionLabel index="05" label="Awards" invert accent={accents.awards} />
+        <SectionLabel index="05" label="Awards" invert />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}

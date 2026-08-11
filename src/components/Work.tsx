@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { projects } from "@/content/projects";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 import { ProjectPanel } from "./ProjectPanel";
 
@@ -19,9 +18,8 @@ export function Work() {
       className="relative overflow-hidden section-pad !pt-0"
       aria-label="Selected work"
     >
-      <ColorMark color={accents.work} variant="dash" />
       {/* Featured visual rail */}
-      <div className="relative z-10 border-y border-line bg-[#080808]">
+      <div className="relative z-10 border-y border-line bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))]">
         <div className="mx-auto max-w-[1500px] px-[clamp(1.25rem,4vw,4rem)] py-6">
           <div className="mb-5 flex items-end justify-between gap-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
@@ -73,7 +71,7 @@ export function Work() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-[1500px] px-[clamp(1.25rem,4vw,4rem)] pt-[clamp(4.5rem,10vw,7rem)]">
-        <SectionLabel index="02" label="Selected Work" accent={accents.work} />
+        <SectionLabel index="02" label="Selected Work" />
         <motion.h2
           className="mb-4 max-w-3xl font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}

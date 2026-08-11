@@ -106,10 +106,10 @@ export function Hero() {
               className="object-cover object-center"
               sizes="220px"
             />
-            <span className="absolute left-0 top-0 h-4 w-4 border-l-2 border-t-2 border-[#00E5FF]" />
+            <span className="absolute left-0 top-0 h-4 w-4 border-l-2 border-t-2 border-accent" />
             <span className="absolute right-0 top-0 h-4 w-4 border-r-2 border-t-2 border-fg" />
             <span className="absolute bottom-0 left-0 h-4 w-4 border-b-2 border-l-2 border-fg" />
-            <span className="absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-[#FF3B1F]" />
+            <span className="absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-accent" />
           </div>
           <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted">
             /public/portrait.jpg

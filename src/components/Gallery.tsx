@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { PhotoSlot } from "./PhotoSlot";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 const frames = [
@@ -53,9 +52,8 @@ export function Gallery() {
       className="relative overflow-hidden section-pad border-t border-line"
       aria-label="Lab gallery"
     >
-      <ColorMark color={accents.lab} variant="dash" />
       <div className="relative z-10 mx-auto max-w-[1500px]">
-        <SectionLabel index="06" label="Lab" accent={accents.lab} />
+        <SectionLabel index="06" label="Lab" />
         <motion.h2
           className="mb-4 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}

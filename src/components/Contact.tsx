@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { profile } from "@/content/profile";
-import { accents, ColorMark } from "./ColorMark";
 import { SectionLabel } from "./SectionLabel";
 
 const links = [
@@ -23,10 +22,8 @@ export function Contact() {
       className="relative overflow-hidden border-t border-line section-pad"
       aria-label="Contact"
     >
-      <ColorMark color={accents.contact} variant="corner" />
-
       <div className="relative z-10 mx-auto max-w-[1500px]">
-        <SectionLabel index="08" label="Contact" accent={accents.contact} />
+        <SectionLabel index="08" label="Contact" />
         <motion.h2
           className="mb-6 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[1.02] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
@@ -34,7 +31,8 @@ export function Contact() {
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          Let’s build the next system.
+          Let’s build the next{" "}
+          <span className="text-accent">system.</span>
         </motion.h2>
         <p className="mb-12 max-w-xl text-muted">
           Open to software engineering internships and embedded / firmware roles.
@@ -62,13 +60,8 @@ export function Contact() {
                 <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
                   {link.label}
                 </span>
-                <span
-                  className="font-display text-lg font-semibold tracking-tight transition-colors sm:text-xl"
-                  style={{ ["--hov" as string]: accents.contact }}
-                >
-                  <span className="group-hover:text-[color:var(--hov)]">
-                    {link.value}
-                  </span>
+                <span className="font-display text-lg font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-xl">
+                  {link.value}
                 </span>
               </a>
             </motion.li>
@@ -81,7 +74,7 @@ export function Contact() {
           </p>
           <a
             href="#top"
-            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:text-fg"
+            className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:text-accent"
           >
             Back to top ↑
           </a>

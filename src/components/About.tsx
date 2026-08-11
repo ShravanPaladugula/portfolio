@@ -11,7 +11,7 @@ export function About() {
   return (
     <section className="band-invert section-pad" id="about" aria-label="About">
       <div className="mx-auto max-w-[1500px]">
-        <SectionLabel index="01" label="About" invert accent="#FF3B1F" />
+        <SectionLabel index="01" label="About" invert />
 
         <div className="grid items-end gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
