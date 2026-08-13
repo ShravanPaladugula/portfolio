@@ -19,20 +19,19 @@ export function Contact() {
   return (
     <section
       id="contact"
-      className="relative overflow-hidden border-t border-line section-pad"
+      className="relative overflow-hidden section-pad"
       aria-label="Contact"
     >
-      <div className="relative z-10 mx-auto max-w-[1500px]">
+      <div className="content-wrap relative z-10">
         <SectionLabel index="08" label="Contact" />
         <motion.h2
-          className="mb-6 max-w-3xl font-display text-[clamp(2.25rem,6vw,4.5rem)] font-bold leading-[1.02] tracking-tight"
+          className="mb-6 max-w-3xl font-display text-[clamp(2rem,5vw,3.75rem)] font-bold leading-[1.02] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55 }}
         >
-          Let’s build the next{" "}
-          <span className="text-accent">system.</span>
+          Let’s build the next <span className="text-accent">system.</span>
         </motion.h2>
         <p className="mb-12 max-w-xl text-muted">
           Open to software engineering internships and embedded / firmware roles.

@@ -27,15 +27,15 @@ export function ProjectPanel({
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="group grid w-full grid-cols-1 items-center gap-6 py-7 text-left transition-colors hover:bg-fg/[0.03] sm:py-8 lg:grid-cols-[180px_1fr_auto]"
+        className="group grid w-full grid-cols-1 items-center gap-6 py-7 text-left transition-colors hover:bg-fg/[0.03] sm:py-8 lg:grid-cols-[160px_1fr_auto]"
       >
-        <div className="relative hidden aspect-[4/3] overflow-hidden border border-line bg-[#0c0c0c] lg:block">
+        <div className="relative hidden aspect-[4/3] overflow-hidden border border-line bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))] lg:block">
           <Image
             src={project.image}
             alt=""
             fill
-            className="object-cover grayscale contrast-110 transition-transform duration-500 group-hover:scale-105"
-            sizes="180px"
+            className="object-cover grayscale contrast-110 transition-[transform,filter] duration-500 group-hover:scale-105 group-hover:grayscale-0"
+            sizes="160px"
           />
           <span className="absolute left-2 top-2 font-mono text-[9px] uppercase tracking-[0.18em] text-fg/80">
             {num}
@@ -47,7 +47,7 @@ export function ProjectPanel({
             <span className="font-mono text-[11px] text-muted lg:hidden">
               {num}
             </span>
-            <h3 className="font-display text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
+            <h3 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
               {project.name}
             </h3>
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-muted">
@@ -55,7 +55,7 @@ export function ProjectPanel({
             </span>
           </div>
           {project.award && (
-            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
+            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
               {project.award}
             </p>
           )}
@@ -65,11 +65,11 @@ export function ProjectPanel({
         </div>
 
         <span
-          className={`shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors group-hover:text-fg ${
-            open ? "text-fg" : ""
+          className={`shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-muted transition-colors group-hover:text-accent ${
+            open ? "text-accent" : ""
           }`}
         >
-          {open ? "Close −" : "Dossier +"}
+          {open ? "Close −" : "Open +"}
         </span>
       </button>
 
@@ -87,27 +87,29 @@ export function ProjectPanel({
               <PhotoSlot
                 src={project.image}
                 alt={`${project.name} build photo`}
-                caption={`Slot · ${project.image} — ${project.imageCaption}`}
+                caption={project.imageCaption}
                 aspect="video"
               />
-              <div className="grid gap-8 content-start sm:grid-cols-1">
+              <div className="grid gap-8 content-start">
                 <DossierBlock title="What I built" body={project.built} />
                 <DossierBlock title="The problem" body={project.problem} />
                 <DossierBlock title="How I improved it" body={project.improved} />
               </div>
             </div>
 
-            <div className="mb-10 mt-6 flex flex-wrap gap-x-3 gap-y-2 border-t border-line pt-5">
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+            <div className="mb-10 mt-6 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-line pt-5">
+              <span className="mr-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                 Tools
               </span>
-              {project.tools.map((tool) => (
+              {project.tools.map((tool, i) => (
                 <span
                   key={tool}
                   className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80"
                 >
                   {tool}
-                  <span className="ml-3 text-line">/</span>
+                  {i < project.tools.length - 1 && (
+                    <span className="mx-2 text-line">/</span>
+                  )}
                 </span>
               ))}
             </div>

@@ -13,7 +13,7 @@ export function Awards() {
       id="awards"
       aria-label="Awards"
     >
-      <div className="relative z-10 mx-auto max-w-[1400px]">
+      <div className="content-wrap relative z-10">
         <SectionLabel index="05" label="Awards" invert />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"

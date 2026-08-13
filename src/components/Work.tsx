@@ -13,23 +13,18 @@ export function Work() {
   const featured = projects.slice(0, 4);
 
   return (
-    <section
-      id="work"
-      className="relative overflow-hidden section-pad !pt-0"
-      aria-label="Selected work"
-    >
-      {/* Featured visual rail */}
-      <div className="relative z-10 border-y border-line bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))]">
-        <div className="mx-auto max-w-[1500px] px-[clamp(1.25rem,4vw,4rem)] py-6">
+    <section id="work" className="relative overflow-hidden" aria-label="Selected work">
+      <div className="relative z-10 border-y border-line bg-[color-mix(in_oklab,var(--bg)_94%,var(--fg))]">
+        <div className="content-wrap px-[clamp(1.25rem,4vw,4rem)] py-7">
           <div className="mb-5 flex items-end justify-between gap-4">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
-              Featured frames · replace files in /public/projects
+              Featured work
             </p>
-            <p className="hidden font-mono text-[10px] uppercase tracking-[0.18em] text-muted sm:block">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
               Scroll →
             </p>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex gap-4 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {featured.map((project, i) => (
               <motion.button
                 key={project.id}
@@ -40,7 +35,7 @@ export function Work() {
                     .getElementById(`project-${project.id}`)
                     ?.scrollIntoView({ behavior: "smooth", block: "center" });
                 }}
-                className="group relative w-[min(78vw,420px)] shrink-0 text-left"
+                className="group relative w-[min(78vw,400px)] shrink-0 text-left"
                 initial={reduce ? false : { opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -51,10 +46,10 @@ export function Work() {
                     src={project.image}
                     alt={project.name}
                     fill
-                    className="object-cover grayscale contrast-110 transition-transform duration-700 group-hover:scale-105"
-                    sizes="420px"
+                    className="object-cover grayscale contrast-110 transition-[transform,filter] duration-700 group-hover:scale-105 group-hover:grayscale-0"
+                    sizes="400px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/25 to-transparent" />
                   <div className="absolute inset-x-0 bottom-0 p-4">
                     <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                       {String(i + 1).padStart(2, "0")} · {project.year}
@@ -70,10 +65,10 @@ export function Work() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto max-w-[1500px] px-[clamp(1.25rem,4vw,4rem)] pt-[clamp(4.5rem,10vw,7rem)]">
+      <div className="section-pad content-wrap">
         <SectionLabel index="02" label="Selected Work" />
         <motion.h2
-          className="mb-4 max-w-3xl font-display text-[clamp(2rem,4.5vw,3.75rem)] font-bold leading-[1.05] tracking-tight"
+          className="mb-4 max-w-3xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -82,9 +77,8 @@ export function Work() {
           Build notes, problems, and iterations.
         </motion.h2>
         <p className="mb-12 max-w-xl text-muted">
-          Every project has a photo slot and a full build dossier. Drop your
-          hardware shots into{" "}
-          <span className="text-fg/80">/public/projects</span>.
+          Open a project for the full build dossier — what shipped, what broke,
+          and how it got better.
         </p>
 
         <div>

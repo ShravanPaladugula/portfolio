@@ -17,7 +17,7 @@ export function Path() {
       className="relative overflow-hidden section-pad"
       aria-label="Experience and leadership"
     >
-      <div className="relative z-10 mx-auto max-w-[1400px]">
+      <div className="content-wrap relative z-10">
         <SectionLabel index="04" label="Path" />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
@@ -69,7 +69,7 @@ function PathRow({
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-start justify-between gap-4 py-7 text-left sm:py-8"
+        className="flex w-full items-start justify-between gap-4 py-7 text-left transition-colors hover:bg-fg/[0.03] sm:py-8"
       >
         <div className="flex min-w-0 gap-4 sm:gap-8">
           <span className="shrink-0 pt-1 font-mono text-[11px] text-muted">
@@ -86,7 +86,7 @@ function PathRow({
             </p>
           </div>
         </div>
-        <span className="mt-1 shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-muted">
+        <span className={`mt-1 shrink-0 font-mono text-xs uppercase tracking-[0.18em] transition-colors ${open ? "text-accent" : "text-muted"}`}>
           {open ? "−" : "+"}
         </span>
       </button>
@@ -112,17 +112,19 @@ function PathRow({
               ))}
             </ul>
             {item.tools && (
-              <div className="mb-8 flex flex-wrap gap-x-3 gap-y-2 border-t border-line pt-4 pl-0 sm:pl-12 md:pl-16">
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+              <div className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-2 border-t border-line pt-4 pl-0 sm:pl-12 md:pl-16">
+                <span className="mr-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                   Tools
                 </span>
-                {item.tools.map((t) => (
+                {item.tools.map((t, i) => (
                   <span
                     key={t}
                     className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80"
                   >
                     {t}
-                    <span className="ml-3 text-line">/</span>
+                    {i < item.tools!.length - 1 && (
+                      <span className="mx-2 text-line">/</span>
+                    )}
                   </span>
                 ))}
               </div>

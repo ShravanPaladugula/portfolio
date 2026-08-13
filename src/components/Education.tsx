@@ -9,12 +9,12 @@ export function Education() {
 
   return (
     <section
-      className="relative overflow-hidden section-pad"
+      className="band-invert relative overflow-hidden section-pad"
       id="education"
       aria-label="Education"
     >
-      <div className="relative z-10 mx-auto max-w-[1500px]">
-        <SectionLabel index="07" label="Education" />
+      <div className="content-wrap relative z-10">
+        <SectionLabel index="07" label="Education" invert />
         <motion.h2
           className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
@@ -25,29 +25,31 @@ export function Education() {
           Training ground.
         </motion.h2>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <ul className="divide-y divide-[color:var(--invert-line)] border-y border-[color:var(--invert-line)]">
           {profile.education.map((edu, i) => (
-            <motion.div
+            <motion.li
               key={edu.school}
-              className="border border-line border-t-2 border-t-accent p-6 sm:p-8"
+              className="grid gap-3 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline sm:gap-10"
               initial={reduce ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: i * 0.08 }}
             >
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+              <div>
+                <h3 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+                  {edu.school}
+                </h3>
+                <p className="mt-2 text-[color:var(--invert-muted)]">{edu.detail}</p>
+                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--invert-muted)]">
+                  {edu.place}
+                </p>
+              </div>
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
                 {edu.when}
               </p>
-              <h3 className="mt-3 font-display text-2xl font-bold tracking-tight">
-                {edu.school}
-              </h3>
-              <p className="mt-3 text-muted">{edu.detail}</p>
-              <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-                {edu.place}
-              </p>
-            </motion.div>
+            </motion.li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

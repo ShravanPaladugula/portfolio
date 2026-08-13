@@ -31,9 +31,18 @@ export function PhotoSlot({
   aspect = "video",
 }: PhotoSlotProps) {
   const [failed, setFailed] = useState(false);
-  const line = invert ? "border-[#cfcfcf]" : "border-line";
-  const muted = invert ? "text-[#666]" : "text-muted";
-  const fill = invert ? "bg-[#ececec]" : "bg-[#0c0c0c]";
+  const tick = invert
+    ? "border-[color:var(--invert-fg)]"
+    : "border-fg";
+  const line = invert
+    ? "border-[color:var(--invert-line)]"
+    : "border-line";
+  const muted = invert
+    ? "text-[color:var(--invert-muted)]"
+    : "text-muted";
+  const fill = invert
+    ? "bg-[color-mix(in_oklab,var(--invert)_92%,var(--invert-fg))]"
+    : "bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))]";
 
   return (
     <figure className={`group relative ${className}`}>
@@ -42,30 +51,21 @@ export function PhotoSlot({
           aspect === "fill" ? "h-full min-h-[280px]" : aspectClass[aspect]
         }`}
       >
-        {/* Corner ticks */}
         <span
           aria-hidden
-          className={`pointer-events-none absolute left-0 top-0 z-20 h-4 w-4 border-l border-t ${
-            invert ? "border-black" : "border-fg"
-          }`}
+          className={`pointer-events-none absolute left-0 top-0 z-20 h-4 w-4 border-l border-t ${tick}`}
         />
         <span
           aria-hidden
-          className={`pointer-events-none absolute right-0 top-0 z-20 h-4 w-4 border-r border-t ${
-            invert ? "border-black" : "border-fg"
-          }`}
+          className={`pointer-events-none absolute right-0 top-0 z-20 h-4 w-4 border-r border-t ${tick}`}
         />
         <span
           aria-hidden
-          className={`pointer-events-none absolute bottom-0 left-0 z-20 h-4 w-4 border-b border-l ${
-            invert ? "border-black" : "border-fg"
-          }`}
+          className={`pointer-events-none absolute bottom-0 left-0 z-20 h-4 w-4 border-b border-l ${tick}`}
         />
         <span
           aria-hidden
-          className={`pointer-events-none absolute bottom-0 right-0 z-20 h-4 w-4 border-b border-r ${
-            invert ? "border-black" : "border-fg"
-          }`}
+          className={`pointer-events-none absolute bottom-0 right-0 z-20 h-4 w-4 border-b border-r ${tick}`}
         />
 
         {!failed ? (
@@ -74,7 +74,7 @@ export function PhotoSlot({
             alt={alt}
             fill
             priority={priority}
-            className="object-cover grayscale contrast-110 transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className="object-cover grayscale contrast-110 transition-[transform,filter] duration-700 ease-out group-hover:scale-[1.03] group-hover:grayscale-0"
             sizes="(max-width: 768px) 100vw, 50vw"
             onError={() => setFailed(true)}
           />
@@ -83,30 +83,16 @@ export function PhotoSlot({
             <span
               className={`font-mono text-[10px] uppercase tracking-[0.22em] ${muted}`}
             >
-              Photo slot
-            </span>
-            <span
-              className={`font-mono text-[11px] uppercase tracking-[0.14em] ${
-                invert ? "text-black/70" : "text-fg/70"
-              }`}
-            >
-              Drop file at {src}
+              Image unavailable
             </span>
           </div>
         )}
-
-        <div
-          className={`pointer-events-none absolute inset-0 opacity-40 mix-blend-overlay ${
-            invert ? "bg-[radial-gradient(circle_at_30%_20%,#fff,transparent_55%)]" : "bg-[radial-gradient(circle_at_70%_30%,#fff3,transparent_50%)]"
-          }`}
-        />
       </div>
       {caption && (
         <figcaption
-          className={`mt-3 flex items-center justify-between gap-4 font-mono text-[10px] uppercase tracking-[0.18em] ${muted}`}
+          className={`mt-3 font-mono text-[10px] uppercase tracking-[0.18em] ${muted}`}
         >
-          <span>{caption}</span>
-          <span className="opacity-60">IMG</span>
+          {caption}
         </figcaption>
       )}
     </figure>

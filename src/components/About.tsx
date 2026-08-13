@@ -10,7 +10,7 @@ export function About() {
 
   return (
     <section className="band-invert section-pad" id="about" aria-label="About">
-      <div className="mx-auto max-w-[1500px]">
+      <div className="content-wrap">
         <SectionLabel index="01" label="About" invert />
 
         <div className="grid items-end gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
@@ -74,7 +74,7 @@ export function About() {
             <PhotoSlot
               src="/about.jpg"
               alt="Workspace and build environment"
-              caption="Slot · /public/about.jpg — lab, bench, or candid build shot"
+              caption="Bench, enclosure, and build process"
               aspect="portrait"
               invert
               className="max-w-xl lg:ml-auto"

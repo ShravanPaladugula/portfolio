@@ -7,37 +7,37 @@ import { SectionLabel } from "./SectionLabel";
 const frames = [
   {
     src: "/gallery/01.jpg",
-    caption: "01 · Bench / print farm",
+    caption: "Bench / print farm",
     aspect: "video" as const,
     span: "md:col-span-2",
   },
   {
     src: "/gallery/02.jpg",
-    caption: "02 · Hardware close-up",
+    caption: "Hardware close-up",
     aspect: "square" as const,
     span: "",
   },
   {
     src: "/gallery/03.jpg",
-    caption: "03 · Field / drone",
+    caption: "Field / drone",
     aspect: "square" as const,
     span: "",
   },
   {
     src: "/gallery/05.jpg",
-    caption: "05 · Portrait alternate",
+    caption: "Build portrait",
     aspect: "portrait" as const,
     span: "md:row-span-2",
   },
   {
     src: "/gallery/04.jpg",
-    caption: "04 · Event / demo",
+    caption: "Event / demo",
     aspect: "video" as const,
     span: "md:col-span-2",
   },
   {
     src: "/gallery/06.jpg",
-    caption: "06 · CAD / fab detail",
+    caption: "CAD / fab detail",
     aspect: "video" as const,
     span: "md:col-span-2",
   },
@@ -49,10 +49,10 @@ export function Gallery() {
   return (
     <section
       id="lab"
-      className="relative overflow-hidden section-pad border-t border-line"
+      className="relative overflow-hidden section-pad"
       aria-label="Lab gallery"
     >
-      <div className="relative z-10 mx-auto max-w-[1500px]">
+      <div className="content-wrap relative z-10">
         <SectionLabel index="06" label="Lab" />
         <motion.h2
           className="mb-4 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
@@ -64,11 +64,10 @@ export function Gallery() {
           Frames from the build floor.
         </motion.h2>
         <p className="mb-12 max-w-xl text-muted">
-          Photo slots for printers, PCBs, demos, and team shots. Replace files in{" "}
-          <span className="text-fg/80">/public/gallery</span>.
+          Printers, PCBs, demos, and field builds — the physical side of the work.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
+        <div className="grid auto-rows-fr grid-cols-1 gap-4 md:grid-cols-4 md:gap-5">
           {frames.map((frame, i) => (
             <motion.div
               key={frame.src}
