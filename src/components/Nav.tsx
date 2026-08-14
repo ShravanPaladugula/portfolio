@@ -5,6 +5,7 @@ import { profile } from "@/content/profile";
 import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
+  { href: "#about", label: "About" },
   { href: "#work", label: "Work" },
   { href: "#lab", label: "Lab" },
   { href: "#path", label: "Path" },

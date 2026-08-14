@@ -117,14 +117,15 @@ function PathRow({
                   Tools
                 </span>
                 {item.tools.map((t, i) => (
-                  <span
-                    key={t}
-                    className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80"
-                  >
-                    {t}
-                    {i < item.tools!.length - 1 && (
-                      <span className="mx-2 text-line">/</span>
+                  <span key={t} className="contents">
+                    {i > 0 && (
+                      <span className="font-mono text-[11px] text-line" aria-hidden>
+                        /
+                      </span>
                     )}
+                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80">
+                      {t}
+                    </span>
                   </span>
                 ))}
               </div>

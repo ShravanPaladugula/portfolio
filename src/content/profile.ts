@@ -1,17 +1,16 @@
 export const profile = {
   name: "Shravan Paladugula",
-  shortName: "Shravan",
   monogram: "SP",
   role: "Incoming Computer Engineering · UC San Diego",
   headline: "I build systems that leave the screen.",
   tagline:
-    "Incoming B.S. Computer Engineering at UC San Diego — embedded systems, firmware, edge AI, and full-stack fabrication pipelines.",
+    "Embedded systems, firmware, edge AI, and full-stack fabrication pipelines — from PCB and enclosure to production software.",
   location: "Mountain House, CA → La Jolla, CA",
   email: "shravan.paladugula@gmail.com",
   phone: "(925) 493-9513",
   links: {
     github: "https://github.com/ShravanPaladugula",
-    linkedin: "https://linkedin.com/in/shravan-paladugula",
+    linkedin: "https://www.linkedin.com/in/shravan-paladugula",
     devpost: "https://devpost.com/ShravanPaladugula",
     resume: "/resume.pdf",
   },
@@ -22,12 +21,6 @@ export const profile = {
       "My work spans edge AI attendance hardware, voice-to-fabrication agents, clinical communication devices, and SAR drone platforms. Outside the lab I lead MountainHacks and build nonprofit infrastructure at ServingHandz.",
     ],
   },
-  signals: [
-    { value: "13", label: "hackathon wins across 15 events" },
-    { value: "2×", label: "CruzHacks Best Hardware Hack" },
-    { value: "500+", label: "hackathon club members led" },
-    { value: "$3K+", label: "Central Valley Printing revenue" },
-  ],
   systems: {
     embedded: [
       "ESP32",

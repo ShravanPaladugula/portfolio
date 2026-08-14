@@ -102,14 +102,15 @@ export function ProjectPanel({
                 Tools
               </span>
               {project.tools.map((tool, i) => (
-                <span
-                  key={tool}
-                  className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80"
-                >
-                  {tool}
-                  {i < project.tools.length - 1 && (
-                    <span className="mx-2 text-line">/</span>
+                <span key={tool} className="contents">
+                  {i > 0 && (
+                    <span className="font-mono text-[11px] text-line" aria-hidden>
+                      /
+                    </span>
                   )}
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/80">
+                    {tool}
+                  </span>
                 </span>
               ))}
             </div>
