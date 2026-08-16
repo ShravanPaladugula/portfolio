@@ -57,6 +57,11 @@ export function Work() {
                     <p className="mt-1 font-display text-xl font-bold tracking-tight">
                       {project.name}
                     </p>
+                    {project.award && (
+                      <p className="mt-1 line-clamp-1 font-mono text-[10px] uppercase tracking-[0.12em] text-accent">
+                        {project.award}
+                      </p>
+                    )}
                   </div>
                 </div>
               </motion.button>

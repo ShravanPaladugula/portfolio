@@ -22,7 +22,7 @@ export function SectionLabel({ index, label, invert }: SectionLabelProps) {
 export function ColorSeam() {
   return (
     <div aria-hidden className="relative h-px w-full overflow-hidden bg-line">
-      <div className="absolute inset-y-0 left-[10%] w-[22%] max-w-[220px] bg-accent" />
+      <div className="absolute inset-y-0 left-[8%] w-[28%] max-w-[280px] bg-accent seam-pulse" />
     </div>
   );
 }

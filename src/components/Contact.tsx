@@ -22,6 +22,12 @@ export function Contact() {
       className="relative overflow-hidden section-pad"
       aria-label="Contact"
     >
+      <div
+        className="pointer-events-none absolute -right-8 top-8 select-none font-display text-[clamp(8rem,28vw,22rem)] font-bold leading-none tracking-[-0.06em] text-fg/[0.035]"
+        aria-hidden
+      >
+        SP
+      </div>
       <div className="content-wrap relative z-10">
         <SectionLabel index="08" label="Contact" />
         <motion.h2

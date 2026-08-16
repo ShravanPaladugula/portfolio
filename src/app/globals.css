@@ -109,6 +109,94 @@ body {
   mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
 }
 
+.hero-signal {
+  background:
+    radial-gradient(ellipse 55% 45% at 78% 42%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 18% 78%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 65%);
+}
+
+.signal-dot {
+  width: 0.28em;
+  height: 0.28em;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent);
+  animation: signal-pulse 2.4s ease-out infinite;
+}
+
+.signal-scan {
+  animation: signal-scan 2.8s ease-in-out infinite;
+}
+
+.scroll-pip {
+  animation: scroll-pip 1.6s ease-in-out infinite;
+}
+
+.seam-pulse {
+  animation: seam-drift 7s ease-in-out infinite;
+}
+
+.marquee-track {
+  animation: marquee 32s linear infinite;
+}
+
+@keyframes signal-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes signal-scan {
+  0% {
+    transform: translateX(-10%);
+  }
+  50% {
+    transform: translateX(180%);
+  }
+  100% {
+    transform: translateX(-10%);
+  }
+}
+
+@keyframes scroll-pip {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(220%);
+    opacity: 0;
+  }
+}
+
+@keyframes seam-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(140%);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 .section-pad {
   padding-inline: clamp(1.25rem, 4vw, 4rem);
   padding-block: clamp(4.5rem, 12vw, 8rem);
@@ -165,5 +253,13 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .marquee-track,
+  .signal-scan,
+  .scroll-pip,
+  .seam-pulse,
+  .signal-dot {
+    animation: none !important;
   }
 }

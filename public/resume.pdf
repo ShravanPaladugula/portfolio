@@ -1,16 +1,8 @@
 %PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
-3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
-endobj
-4 0 obj
-<< /Length 1520 >>
-stream
+1 0 obj<< /Type /Catalog /Pages 2 0 R >>endobj
+2 0 obj<< /Type /Pages /Kids [3 0 R] /Count 1 >>endobj
+3 0 obj<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>endobj
+4 0 obj<< /Length 1665 >>stream
 BT
 /F1 18 Tf
 50 740 Td
@@ -26,9 +18,6 @@ BT
 /F1 10 Tf
 (linkedin.com/in/shravan-paladugula  |  github.com/ShravanPaladugula) Tj
 0 -16 Td
-/F1 10 Tf
-() Tj
-0 -16 Td
 /F1 12 Tf
 (EXPERIENCE) Tj
 0 -16 Td
@@ -38,66 +27,66 @@ BT
 /F1 9 Tf
 ($3,000+ revenue | 20+ custom parts | full-stack e-commerce | 22 Vercel deploys) Tj
 0 -16 Td
-/F1 8 Tf
-() Tj
+/F1 10 Tf
+(President - MHHS Hackathon Club / MountainHacks 2023-2026) Tj
+0 -16 Td
+/F1 9 Tf
+(500+ members | 200+ attendees | $20K fundraised | $150K prizes) Tj
 0 -16 Td
 /F1 12 Tf
-(SELECTED PROJECTS) Tj
+(PROJECTS) Tj
+0 -16 Td
+/F1 10 Tf
+(CONJR - WizardHacks 2026 You.com Best Project) Tj
 0 -16 Td
 /F1 9 Tf
-(CONJR - WizardHacks 2026 You.com Best Project - voice-to-3D fabrication) Tj
+(Voice-to-3D fabrication: OpenSCAD, CuraEngine, Moonraker, Orange Pi, FastAPI) Tj
+0 -16 Td
+/F1 10 Tf
+(CHEHRA - Edge AI attendance system) Tj
 0 -16 Td
 /F1 9 Tf
-(CHEHRA - Edge AI attendance - 96% accuracy - 250+ check-ins) Tj
+(Custom PCB + Orange Pi edge recognition | classroom pilot) Tj
+0 -16 Td
+/F1 10 Tf
+(Rosetta MD - CruzHacks 2026 Best Hardware Hack) Tj
 0 -16 Td
 /F1 9 Tf
-(Rosetta MD / PillWatch - CruzHacks Best Hardware Hack 2026 & 2025) Tj
+(Handheld clinical speech translation device) Tj
+0 -16 Td
+/F1 10 Tf
+(PillWatch - CruzHacks 2025 Best Hardware Hack) Tj
 0 -16 Td
 /F1 9 Tf
-(MIT BWSI UAS-SAR - custom airframe, PID, SAR backprojection) Tj
-0 -16 Td
-/F1 8 Tf
-() Tj
-0 -16 Td
-/F1 12 Tf
-(LEADERSHIP) Tj
-0 -16 Td
-/F1 9 Tf
-(President, MHHS Hackathon Club / MountainHacks - 500+ members) Tj
-0 -16 Td
-/F1 9 Tf
-(Lead Programmer, VEX & FTC - state-level qualification) Tj
-0 -16 Td
-/F1 9 Tf
-(Co-Founder & Trustee, ServingHandz - 45,000+ meals - 35 chapters) Tj
-0 -16 Td
-/F1 8 Tf
-() Tj
+(Medication adherence hardware + software) Tj
 0 -16 Td
 /F1 12 Tf
 (EDUCATION) Tj
 0 -16 Td
-/F1 9 Tf
-(UC San Diego - B.S. Computer Engineering, Jacobs School 2026-2030) Tj
+/F1 10 Tf
+(UC San Diego - B.S. Computer Engineering \(Incoming Fall 2026\)) Tj
+0 -16 Td
+/F1 10 Tf
+(Mountain House HS - GPA 4.64 | Rank 6/615 | AP Scholar with Distinction) Tj
+0 -16 Td
+/F1 12 Tf
+(SKILLS) Tj
 0 -16 Td
 /F1 9 Tf
-(Mountain House High School - GPA 4.64 | Rank 6/615 | AP Scholar w/ Distinction) Tj
+(ESP32, Arduino, Raspberry Pi, KiCAD, Fusion 360, C/C++, Python, TypeScript, React, OpenCV) Tj
 ET
 endstream
 endobj
-5 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
-endobj
+5 0 obj<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>endobj
 xref
 0 6
 0000000000 65535 f 
 0000000009 00000 n 
-0000000058 00000 n 
-0000000115 00000 n 
-0000000241 00000 n 
-0000001813 00000 n 
-trailer
-<< /Size 6 /Root 1 0 R >>
+0000000056 00000 n 
+0000000111 00000 n 
+0000000235 00000 n 
+0000001950 00000 n 
+trailer<< /Size 6 /Root 1 0 R >>
 startxref
-1883
+2018
 %%EOF

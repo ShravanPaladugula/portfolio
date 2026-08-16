@@ -22,7 +22,7 @@ export function Systems() {
       <div className="content-wrap relative z-10">
         <SectionLabel index="03" label="Systems" invert />
         <motion.h2
-          className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
+          className="mb-4 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
           initial={reduce ? false : { opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -30,6 +30,9 @@ export function Systems() {
         >
           Inventory of what I ship with.
         </motion.h2>
+        <p className="mb-12 max-w-xl text-[color:var(--invert-muted)]">
+          From board bring-up to production software — the stack behind the builds.
+        </p>
 
         <div className="grid gap-10 md:grid-cols-3 md:gap-8">
           {columns.map((col, i) => (
