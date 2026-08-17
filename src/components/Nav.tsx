@@ -5,16 +5,17 @@ import { profile } from "@/content/profile";
 import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
-  { href: "#about", label: "About" },
-  { href: "#work", label: "Work" },
-  { href: "#lab", label: "Lab" },
-  { href: "#path", label: "Path" },
-  { href: "#contact", label: "Contact" },
+  { href: "#about", label: "About", id: "about" },
+  { href: "#work", label: "Work", id: "work" },
+  { href: "#lab", label: "Lab", id: "lab" },
+  { href: "#path", label: "Path", id: "path" },
+  { href: "#contact", label: "Contact", id: "contact" },
 ];
 
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("top");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -29,6 +30,36 @@ export function Nav() {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  useEffect(() => {
+    const ids = ["about", "work", "systems", "path", "awards", "lab", "education", "contact"];
+    const elements = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target.id) {
+          const id = visible[0].target.id;
+          if (id === "systems" || id === "awards" || id === "education") {
+            // map adjacent sections to nearest nav anchors
+            if (id === "systems") setActive("work");
+            else if (id === "awards") setActive("path");
+            else setActive("lab");
+          } else {
+            setActive(id);
+          }
+        }
+      },
+      { rootMargin: "-28% 0px -55% 0px", threshold: [0.1, 0.25, 0.5] },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <header
@@ -51,23 +82,33 @@ export function Nav() {
           <span className="ml-3 hidden text-muted sm:inline">{profile.name}</span>
         </a>
 
-        <div className="hidden items-center gap-6 md:flex">
-          {links.map((link) => (
+        <div className="hidden items-center gap-1 md:flex">
+          {links.map((link) => {
+            const isActive = active === link.id;
+            return (
+              <a
+                key={link.href}
+                href={link.href}
+                className={`relative px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${
+                  isActive ? "text-accent" : "text-muted hover:text-fg"
+                }`}
+              >
+                {link.label}
+                {isActive && (
+                  <span className="absolute inset-x-3 -bottom-0.5 h-px bg-accent" />
+                )}
+              </a>
+            );
+          })}
+          <div className="ml-3 flex items-center gap-3">
+            <ThemeToggle />
             <a
-              key={link.href}
-              href={link.href}
-              className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted transition-colors hover:text-accent"
+              href={profile.links.resume}
+              className="border border-fg px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-fg transition-colors hover:border-accent hover:bg-accent hover:text-[color:var(--selection-fg)]"
             >
-              {link.label}
+              Resume
             </a>
-          ))}
-          <ThemeToggle />
-          <a
-            href={profile.links.resume}
-            className="border border-fg px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-fg transition-colors hover:bg-accent hover:border-accent hover:text-[color:var(--selection-fg)]"
-          >
-            Resume
-          </a>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 md:hidden">
@@ -95,7 +136,9 @@ export function Nav() {
               <a
                 key={link.href}
                 href={link.href}
-                className="font-mono text-sm uppercase tracking-[0.18em] text-fg"
+                className={`font-mono text-sm uppercase tracking-[0.18em] ${
+                  active === link.id ? "text-accent" : "text-fg"
+                }`}
                 onClick={() => setOpen(false)}
               >
                 {link.label}

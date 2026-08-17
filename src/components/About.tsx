@@ -13,7 +13,7 @@ export function About() {
       <div className="content-wrap">
         <SectionLabel index="01" label="About" invert />
 
-        <div className="grid items-end gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
             <motion.h2
               className="max-w-xl font-display text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.02] tracking-tight"
@@ -66,6 +66,7 @@ export function About() {
           </div>
 
           <motion.div
+            className="lg:sticky lg:top-28"
             initial={reduce ? false : { opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

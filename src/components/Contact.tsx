@@ -39,10 +39,26 @@ export function Contact() {
         >
           Let’s build the next <span className="text-accent">system.</span>
         </motion.h2>
-        <p className="mb-12 max-w-xl text-muted">
+        <p className="mb-8 max-w-xl text-muted">
           Open to software engineering internships and embedded / firmware roles.
           Reach out directly.
         </p>
+
+        <motion.a
+          href={`mailto:${profile.email}`}
+          className="group mb-14 inline-flex flex-col gap-2 border-b border-accent pb-3"
+          initial={reduce ? false : { opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+            Primary
+          </span>
+          <span className="font-display text-[clamp(1.35rem,3.5vw,2.5rem)] font-bold tracking-tight transition-colors group-hover:text-accent">
+            {profile.email}
+          </span>
+        </motion.a>
 
         <ul className="grid gap-0 border-t border-line sm:grid-cols-2">
           {links.map((link, i) => (
