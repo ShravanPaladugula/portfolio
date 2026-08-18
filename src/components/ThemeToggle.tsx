@@ -1,37 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getTheme, toggleTheme } from "@/lib/theme";
 
 type Theme = "night" | "day";
-
-function applyTheme(theme: Theme) {
-  document.documentElement.dataset.theme = theme;
-  document.documentElement.classList.toggle("light", theme === "day");
-}
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("night");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("sp-theme");
-    const next: Theme = stored === "day" ? "day" : "night";
-    setTheme(next);
-    applyTheme(next);
+    const sync = () => setTheme(getTheme());
+    sync();
     setReady(true);
+    window.addEventListener("sp-theme-change", sync);
+    return () => window.removeEventListener("sp-theme-change", sync);
   }, []);
 
-  const toggle = () => {
-    const next: Theme = theme === "night" ? "day" : "night";
+  const onToggle = () => {
+    const next = toggleTheme();
     setTheme(next);
-    applyTheme(next);
-    window.localStorage.setItem("sp-theme", next);
+    window.dispatchEvent(new Event("sp-theme-change"));
   };
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={onToggle}
       aria-label={
         theme === "night" ? "Switch to day mode" : "Switch to night mode"
       }

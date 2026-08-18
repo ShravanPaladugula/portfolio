@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState, type MouseEvent } from "react";
 
 type PhotoSlotProps = {
   src: string;
@@ -30,7 +30,9 @@ export function PhotoSlot({
   invert,
   aspect = "video",
 }: PhotoSlotProps) {
+  const ref = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
+  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
   const tick = invert
     ? "border-[color:var(--invert-fg)]"
     : "border-fg";
@@ -44,10 +46,32 @@ export function PhotoSlot({
     ? "bg-[color-mix(in_oklab,var(--invert)_92%,var(--invert-fg))]"
     : "bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))]";
 
+  function onMove(e: MouseEvent<HTMLDivElement>) {
+    const el = ref.current;
+    if (!el || window.matchMedia("(pointer: coarse)").matches) return;
+    const rect = el.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    setTilt({
+      ry: (px - 0.5) * 10,
+      rx: (0.5 - py) * 8,
+    });
+  }
+
+  function onLeave() {
+    setTilt({ rx: 0, ry: 0 });
+  }
+
   return (
-    <figure className={`group relative ${className}`}>
+    <figure className={`group relative [perspective:1000px] ${className}`}>
       <div
-        className={`relative overflow-hidden border ${line} ${fill} ${
+        ref={ref}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+        style={{
+          transform: `rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+        }}
+        className={`relative overflow-hidden border transition-transform duration-200 ease-out will-change-transform ${line} ${fill} ${
           aspect === "fill" ? "h-full min-h-[280px]" : aspectClass[aspect]
         }`}
       >

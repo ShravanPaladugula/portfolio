@@ -9,12 +9,13 @@ import { Path } from "@/components/Path";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { ColorSeam } from "@/components/SectionLabel";
 import { SignalMarquee } from "@/components/SignalMarquee";
+import { SiteChrome } from "@/components/SiteChrome";
 import { Systems } from "@/components/Systems";
 import { Work } from "@/components/Work";
 
 export default function Home() {
   return (
-    <>
+    <SiteChrome>
       <ScrollProgress />
       <Nav />
       <main className="relative z-10 flex-1">
@@ -36,6 +37,6 @@ export default function Home() {
         <ColorSeam />
         <Contact />
       </main>
-    </>
+    </SiteChrome>
   );
 }

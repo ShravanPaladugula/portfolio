@@ -101,6 +101,16 @@ export function Nav() {
             );
           })}
           <div className="ml-3 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(new Event("sp-open-commands"))
+              }
+              className="hidden border border-fg/40 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors hover:border-fg hover:text-fg lg:inline"
+              aria-label="Open command palette"
+            >
+              ⌘K
+            </button>
             <ThemeToggle />
             <a
               href={profile.links.resume}

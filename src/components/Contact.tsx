@@ -3,9 +3,10 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { profile } from "@/content/profile";
 import { SectionLabel } from "./SectionLabel";
+import { useToast } from "./Toast";
 
 const links = [
-  { label: "Email", href: `mailto:${profile.email}`, value: profile.email },
+  { label: "Email", href: `mailto:${profile.email}`, value: profile.email, copy: true },
   { label: "Phone", href: `tel:${profile.phone.replace(/\D/g, "")}`, value: profile.phone },
   { label: "LinkedIn", href: profile.links.linkedin, value: "shravan-paladugula" },
   { label: "GitHub", href: profile.links.github, value: "ShravanPaladugula" },
@@ -15,6 +16,12 @@ const links = [
 
 export function Contact() {
   const reduce = useReducedMotion();
+  const { push } = useToast();
+
+  async function copyEmail() {
+    await navigator.clipboard.writeText(profile.email);
+    push("Email copied");
+  }
 
   return (
     <section
@@ -41,24 +48,35 @@ export function Contact() {
         </motion.h2>
         <p className="mb-8 max-w-xl text-muted">
           Open to software engineering internships and embedded / firmware roles.
-          Reach out directly.
+          Reach out directly — click email to copy.
         </p>
 
-        <motion.a
-          href={`mailto:${profile.email}`}
-          className="group mb-14 inline-flex flex-col gap-2 border-b border-accent pb-3"
+        <motion.div
+          className="mb-14 flex flex-wrap items-end gap-4"
           initial={reduce ? false : { opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-            Primary
-          </span>
-          <span className="font-display text-[clamp(1.35rem,3.5vw,2.5rem)] font-bold tracking-tight transition-colors group-hover:text-accent">
-            {profile.email}
-          </span>
-        </motion.a>
+          <button
+            type="button"
+            onClick={copyEmail}
+            className="group inline-flex flex-col gap-2 border-b border-accent pb-3 text-left"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+              Primary · click to copy
+            </span>
+            <span className="font-display text-[clamp(1.35rem,3.5vw,2.5rem)] font-bold tracking-tight transition-colors group-hover:text-accent">
+              {profile.email}
+            </span>
+          </button>
+          <a
+            href={`mailto:${profile.email}`}
+            className="mb-1 border border-fg/40 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-fg transition-colors hover:border-accent hover:text-accent"
+          >
+            Open mail
+          </a>
+        </motion.div>
 
         <ul className="grid gap-0 border-t border-line sm:grid-cols-2">
           {links.map((link, i) => (
@@ -70,21 +88,36 @@ export function Contact() {
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: i * 0.05 }}
             >
-              <a
-                href={link.href}
-                target={link.href.startsWith("http") ? "_blank" : undefined}
-                rel={
-                  link.href.startsWith("http") ? "noopener noreferrer" : undefined
-                }
-                className="group flex items-baseline justify-between gap-4 px-1 py-6 transition-colors hover:bg-fg/[0.03] sm:px-4"
-              >
-                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
-                  {link.label}
-                </span>
-                <span className="font-display text-lg font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-xl">
-                  {link.value}
-                </span>
-              </a>
+              {link.copy ? (
+                <button
+                  type="button"
+                  onClick={copyEmail}
+                  className="group flex w-full items-baseline justify-between gap-4 px-1 py-6 text-left transition-colors hover:bg-fg/[0.03] sm:px-4"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    {link.label}
+                  </span>
+                  <span className="font-display text-lg font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-xl">
+                    {link.value}
+                  </span>
+                </button>
+              ) : (
+                <a
+                  href={link.href}
+                  target={link.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    link.href.startsWith("http") ? "noopener noreferrer" : undefined
+                  }
+                  className="group flex items-baseline justify-between gap-4 px-1 py-6 transition-colors hover:bg-fg/[0.03] sm:px-4"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+                    {link.label}
+                  </span>
+                  <span className="font-display text-lg font-semibold tracking-tight transition-colors group-hover:text-accent sm:text-xl">
+                    {link.value}
+                  </span>
+                </a>
+              )}
             </motion.li>
           ))}
         </ul>
