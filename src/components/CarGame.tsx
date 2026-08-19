@@ -364,41 +364,85 @@ export function CarGame({ open, onClose }: CarGameProps) {
     const player = makeLowPolyCar("#3DFFC8", "#F1F2F4");
     scene.add(player);
 
-    const tmpPos = new THREE.Vector3();
-    const tmpQuat = new THREE.Quaternion();
     const camTarget = new THREE.Vector3();
     const lookTarget = new THREE.Vector3();
+    const nearestPoint = new THREE.Vector3();
 
-    const trackLen = Math.max(1, curve.getLength());
-
-    let t = 0.0;
-    let lateral = 0;
-    let speed = 0; // world units / second
+    const startPoint = curve.getPointAt(0);
+    const startTan = curve.getTangentAt(0).normalize();
+    // yaw so local +Z aligns with track tangent
+    let yaw = Math.atan2(startTan.x, startTan.z);
+    let posX = startPoint.x;
+    let posZ = startPoint.z;
+    let speed = 0;
     let distance = 0;
     let lapCount = 0;
     let lastT = 0;
     let protect = 0;
     let wreckSpin = 0;
+    let previewT = 0;
 
-    // Slow cruise — arc-length based so a big track doesn't feel rocket-fast
-    const MAX_SPEED = 16;
-    const ACCEL = 9;
-    const BRAKE = 20;
-    const DRAG = 5;
-    const STEER_RATE = 5.5; // only while holding A/D
+    const MAX_SPEED = 14;
+    const ACCEL = 8;
+    const BRAKE = 18;
+    const DRAG = 4.5;
+    const TURN_RATE = 1.85; // rad/sec — car actually rotates
 
-    function hardReset() {
-      t = 0;
-      lateral = 0;
+    function nearestTrack(x: number, z: number) {
+      let bestT = 0;
+      let bestD = Infinity;
+      const samples = 180;
+      for (let i = 0; i <= samples; i++) {
+        const tt = i / samples;
+        const p = curve.getPointAt(tt);
+        const d = (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z);
+        if (d < bestD) {
+          bestD = d;
+          bestT = tt;
+        }
+      }
+      // local refine
+      for (const delta of [-0.008, -0.004, 0.004, 0.008]) {
+        const tt = (bestT + delta + 1) % 1;
+        const p = curve.getPointAt(tt);
+        const d = (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z);
+        if (d < bestD) {
+          bestD = d;
+          bestT = tt;
+        }
+      }
+      nearestPoint.copy(curve.getPointAt(bestT));
+      const { tangent, side } = sideAt(curve, bestT);
+      const lateral =
+        (x - nearestPoint.x) * side.x + (z - nearestPoint.z) * side.z;
+      return {
+        t: bestT,
+        dist: Math.sqrt(bestD),
+        lateral,
+        tangent,
+      };
+    }
+
+    function spawnCar() {
+      const p = curve.getPointAt(0);
+      const tan = curve.getTangentAt(0).normalize();
+      posX = p.x;
+      posZ = p.z;
+      yaw = Math.atan2(tan.x, tan.z);
       speed = 0;
       distance = 0;
       lapCount = 0;
       lastT = 0;
-      protect = 2.2;
       wreckSpin = 0;
+      player.position.set(posX, 0.02, posZ);
+      player.rotation.set(0, yaw, 0);
+    }
+
+    function hardReset() {
+      spawnCar();
+      protect = 2.2;
       api.current.alive = true;
       api.current.started = true;
-      player.rotation.set(0, 0, 0);
       setAlive(true);
       setStarted(true);
       setScore(0);
@@ -421,15 +465,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
     }
 
     protect = 999;
-    placeOnTrack(curve, t, lateral, tmpPos, tmpQuat);
-    player.position.copy(tmpPos);
-    player.quaternion.copy(tmpQuat);
-    const { tangent: t0 } = sideAt(curve, t);
-    camera.position
-      .copy(tmpPos)
-      .addScaledVector(t0, -16)
-      .add(new THREE.Vector3(0, 8, 0));
-    camera.lookAt(tmpPos.clone().addScaledVector(t0, 12));
+    spawnCar();
+    camera.position.set(posX - startTan.x * 16, 8, posZ - startTan.z * 16);
+    camera.lookAt(posX + startTan.x * 8, 1, posZ + startTan.z * 8);
 
     let raf = 0;
     const clock = new THREE.Clock();
@@ -450,60 +488,64 @@ export function CarGame({ open, onClose }: CarGameProps) {
         const left = keys.has("a") || keys.has("arrowleft");
         const right = keys.has("d") || keys.has("arrowright");
 
+        // Turn the car (yaw) — this is real steering
+        if (left && !right) yaw += TURN_RATE * dt;
+        if (right && !left) yaw -= TURN_RATE * dt;
+
         if (throttle) speed = Math.min(MAX_SPEED, speed + ACCEL * dt);
         if (braking) speed = Math.max(0, speed - BRAKE * dt);
         speed = Math.max(0, speed - DRAG * dt);
 
-        // Manual steer only — no auto corner push / wall suck
-        if (left && !right) lateral += STEER_RATE * dt;
-        if (right && !left) lateral -= STEER_RATE * dt;
-
-        t = (t + (speed * dt) / trackLen) % 1;
+        const fx = Math.sin(yaw);
+        const fz = Math.cos(yaw);
+        posX += fx * speed * dt;
+        posZ += fz * speed * dt;
         distance += speed * dt;
 
-        if (lastT > 0.8 && t < 0.2) {
+        player.position.set(posX, 0.02, posZ);
+        player.rotation.set(0, yaw, 0);
+
+        const track = nearestTrack(posX, posZ);
+
+        if (lastT > 0.8 && track.t < 0.2) {
           lapCount += 1;
           setLaps(lapCount);
         }
-        lastT = t;
+        lastT = track.t;
 
-        if (Math.abs(lateral) > WALL) {
+        if (Math.abs(track.lateral) > WALL || track.dist > WALL + 1.5) {
           crash(Math.floor(distance + lapCount * 500));
         }
 
         setScore(Math.floor(distance + lapCount * 500));
-        setHudSpeed(Math.floor(speed * 2.2));
+        setHudSpeed(Math.floor(speed * 2.4));
+
+        camTarget.set(
+          posX - fx * 14,
+          7,
+          posZ - fz * 14,
+        );
+        lookTarget.set(posX + fx * 10, 1, posZ + fz * 10);
       } else if (!api.current.started) {
-        t = (t + (4 * dt) / trackLen) % 1;
+        previewT = (previewT + dt * 0.05) % 1;
+        const p = curve.getPointAt(previewT);
+        const tan = curve.getTangentAt(previewT).normalize();
+        player.position.set(p.x, 0.02, p.z);
+        player.rotation.set(0, Math.atan2(tan.x, tan.z), 0);
+        camTarget.set(p.x - tan.x * 16, 9, p.z - tan.z * 16);
+        lookTarget.set(p.x + tan.x * 8, 1, p.z + tan.z * 8);
       } else if (!api.current.alive) {
         wreckSpin += dt;
+        player.rotation.set(0, yaw, Math.sin(wreckSpin * 8) * 0.4);
+        const fx = Math.sin(yaw);
+        const fz = Math.cos(yaw);
+        camTarget.set(posX - fx * 14, 7, posZ - fz * 14);
+        lookTarget.set(posX + fx * 6, 1, posZ + fz * 6);
       }
-
-      placeOnTrack(curve, t, lateral, tmpPos, tmpQuat);
-      player.position.copy(tmpPos);
-      if (api.current.alive) {
-        player.quaternion.copy(tmpQuat);
-      } else {
-        player.quaternion.copy(tmpQuat);
-        player.rotateZ(Math.sin(wreckSpin * 8) * 0.35);
-      }
-
-      const { tangent } = sideAt(curve, t);
-      camTarget
-        .copy(tmpPos)
-        .addScaledVector(tangent, -14)
-        .add(new THREE.Vector3(0, 7, 0));
-      lookTarget
-        .copy(tmpPos)
-        .addScaledVector(tangent, 10)
-        .add(new THREE.Vector3(0, 1, 0));
 
       camera.position.lerp(camTarget, api.current.started ? 0.12 : 0.05);
       camera.lookAt(lookTarget);
-
-      if (camera.position.y < tmpPos.y + 3.5) {
-        camera.position.y = tmpPos.y + 3.5;
-      }
+      if (camera.position.y < 3.5) camera.position.y = 3.5;
 
       renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
@@ -592,9 +634,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
                       Solo circuit
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-muted">
-                      W gas · S brake · hold A/D to steer
+                      A/D turn the car · W gas · S brake
                       <br />
-                      No auto-steer — you drive it
+                      Point the nose, then drive
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
                       Space / W to start
