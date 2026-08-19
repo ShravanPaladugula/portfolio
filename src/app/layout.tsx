@@ -21,7 +21,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shravanpaladugula.vercel.app"),
+  metadataBase: new URL("https://portfolio-phi-eight-tl7b5ws2l1.vercel.app"),
   title: "Shravan Paladugula | Computer Engineering",
   description:
     "Incoming Computer Engineering student at UC San Diego. Embedded systems, firmware, edge AI, and fabrication pipelines.",
