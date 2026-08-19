@@ -9,15 +9,8 @@ type CarGameProps = {
   onClose: () => void;
 };
 
-type AiCar = {
-  mesh: THREE.Group;
-  t: number;
-  speed: number;
-  lateral: number;
-};
-
-const TRACK_HALF = 3.2;
-const WALL = TRACK_HALF + 0.15;
+const TRACK_HALF = 5.5;
+const WALL = TRACK_HALF + 0.25;
 
 function isTypingTarget(target: EventTarget | null) {
   const el = target as HTMLElement | null;
@@ -169,23 +162,24 @@ function makeLowPolyCar(color: string, accent = "#3DFFC8") {
 }
 
 function buildTrackCurve() {
+  // Large open circuit (scaled up)
   const pts = [
     new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(24, 0, 10),
-    new THREE.Vector3(40, 0, 28),
-    new THREE.Vector3(36, 0, 50),
-    new THREE.Vector3(14, 0, 58),
-    new THREE.Vector3(-8, 0, 50),
-    new THREE.Vector3(-20, 0, 34),
-    new THREE.Vector3(-36, 0, 42),
-    new THREE.Vector3(-48, 0, 24),
-    new THREE.Vector3(-40, 0, 4),
-    new THREE.Vector3(-22, 0, -12),
-    new THREE.Vector3(-2, 0, -20),
-    new THREE.Vector3(14, 0, -14),
-    new THREE.Vector3(20, 0, -4),
+    new THREE.Vector3(60, 0, 24),
+    new THREE.Vector3(100, 0, 70),
+    new THREE.Vector3(90, 0, 125),
+    new THREE.Vector3(35, 0, 145),
+    new THREE.Vector3(-20, 0, 125),
+    new THREE.Vector3(-50, 0, 85),
+    new THREE.Vector3(-90, 0, 105),
+    new THREE.Vector3(-120, 0, 60),
+    new THREE.Vector3(-100, 0, 10),
+    new THREE.Vector3(-55, 0, -30),
+    new THREE.Vector3(-5, 0, -50),
+    new THREE.Vector3(35, 0, -35),
+    new THREE.Vector3(50, 0, -10),
   ];
-  return new THREE.CatmullRomCurve3(pts, true, "catmullrom", 0.4);
+  return new THREE.CatmullRomCurve3(pts, true, "catmullrom", 0.45);
 }
 
 export function CarGame({ open, onClose }: CarGameProps) {
@@ -297,20 +291,20 @@ export function CarGame({ open, onClose }: CarGameProps) {
     mount.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0b0d, 35, 110);
+    scene.fog = new THREE.Fog(0x0a0b0d, 60, 220);
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.5, 250);
-    camera.position.set(0, 12, 18);
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.5, 400);
+    camera.position.set(0, 18, 28);
 
     scene.add(new THREE.HemisphereLight(0xc5ceda, 0x1a1d22, 1.0));
     const sun = new THREE.DirectionalLight(0xffffff, 1.15);
-    sun.position.set(25, 40, 15);
+    sun.position.set(40, 60, 25);
     sun.castShadow = true;
     scene.add(sun);
 
     const curve = buildTrackCurve();
 
-    const roadGeo = buildRoadGeometry(curve, TRACK_HALF, 240);
+    const roadGeo = buildRoadGeometry(curve, TRACK_HALF, 320);
     const road = new THREE.Mesh(
       roadGeo,
       new THREE.MeshLambertMaterial({
@@ -322,7 +316,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
     road.receiveShadow = true;
     scene.add(road);
 
-    const lineGeo = buildCenterLine(curve, TRACK_HALF, 240);
+    const lineGeo = buildCenterLine(curve, TRACK_HALF, 320);
     const centerLine = new THREE.Mesh(
       lineGeo,
       new THREE.MeshLambertMaterial({
@@ -343,16 +337,16 @@ export function CarGame({ open, onClose }: CarGameProps) {
     });
 
     for (const sideSign of [-1, 1] as const) {
-      for (let i = 0; i < 72; i++) {
-        const t = i / 72;
-        const p = curve.getPointAt(t);
-        const { tangent, side } = sideAt(curve, t);
+      for (let i = 0; i < 96; i++) {
+        const tt = i / 96;
+        const p = curve.getPointAt(tt);
+        const { tangent, side } = sideAt(curve, tt);
         const post = new THREE.Mesh(
-          new THREE.BoxGeometry(0.28, 0.55, 1.4),
+          new THREE.BoxGeometry(0.35, 0.65, 2.0),
           i % 2 === 0 ? barrierMat : stripeMat,
         );
-        post.position.copy(p).addScaledVector(side, sideSign * (TRACK_HALF + 0.2));
-        post.position.y = 0.28;
+        post.position.copy(p).addScaledVector(side, sideSign * (TRACK_HALF + 0.25));
+        post.position.y = 0.32;
         const look = p.clone().add(tangent);
         post.lookAt(look.x, post.position.y, look.z);
         scene.add(post);
@@ -360,87 +354,15 @@ export function CarGame({ open, onClose }: CarGameProps) {
     }
 
     const ground = new THREE.Mesh(
-      new THREE.CircleGeometry(95, 12),
+      new THREE.CircleGeometry(200, 16),
       new THREE.MeshLambertMaterial({ color: 0x101318, flatShading: true }),
     );
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.15;
     scene.add(ground);
 
-    const treeMat = new THREE.MeshLambertMaterial({
-      color: 0x1f6b55,
-      flatShading: true,
-    });
-    const trunkMat = new THREE.MeshLambertMaterial({
-      color: 0x3a2a1e,
-      flatShading: true,
-    });
-    const rockMat = new THREE.MeshLambertMaterial({
-      color: 0x4a5160,
-      flatShading: true,
-    });
-
-    for (let i = 0; i < 48; i++) {
-      const t = (i + 0.3) / 48;
-      const p = curve.getPointAt(t);
-      const { side } = sideAt(curve, t);
-      const dist = TRACK_HALF + 4 + (i % 5) * 2.2;
-      const sideSign = i % 2 === 0 ? 1 : -1;
-      const pos = p.clone().addScaledVector(side, sideSign * dist);
-
-      if (i % 3 !== 0) {
-        const trunk = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.14, 0.2, 0.8, 5),
-          trunkMat,
-        );
-        trunk.position.copy(pos);
-        trunk.position.y = 0.4;
-        scene.add(trunk);
-        const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.0, 2.0, 5), treeMat);
-        leaves.position.copy(pos);
-        leaves.position.y = 1.55;
-        scene.add(leaves);
-      } else {
-        const rock = new THREE.Mesh(
-          new THREE.DodecahedronGeometry(0.55 + (i % 4) * 0.12, 0),
-          rockMat,
-        );
-        rock.position.copy(pos);
-        rock.position.y = 0.35;
-        rock.rotation.set(i * 0.2, i * 0.3, 0);
-        scene.add(rock);
-      }
-    }
-
-    const mtMat = new THREE.MeshLambertMaterial({
-      color: 0x151920,
-      flatShading: true,
-    });
-    for (let i = 0; i < 10; i++) {
-      const ang = (i / 10) * Math.PI * 2;
-      const mt = new THREE.Mesh(
-        new THREE.ConeGeometry(9 + (i % 3) * 3, 16 + (i % 4) * 3, 5),
-        mtMat,
-      );
-      mt.position.set(Math.cos(ang) * 72, 5, Math.sin(ang) * 72);
-      scene.add(mt);
-    }
-
     const player = makeLowPolyCar("#3DFFC8", "#F1F2F4");
     scene.add(player);
-
-    const ai: AiCar[] = [];
-    const aiColors = ["#8B909A", "#E9EBEF", "#5C6370", "#2AE0B0", "#F07167"];
-    for (let i = 0; i < 5; i++) {
-      const mesh = makeLowPolyCar(aiColors[i % aiColors.length]);
-      scene.add(mesh);
-      ai.push({
-        mesh,
-        t: 0.15 + i * 0.14,
-        speed: 0.008 + i * 0.0012,
-        lateral: ((i % 3) - 1) * 1.4,
-      });
-    }
 
     const tmpPos = new THREE.Vector3();
     const tmpQuat = new THREE.Quaternion();
@@ -456,11 +378,12 @@ export function CarGame({ open, onClose }: CarGameProps) {
     let protect = 0;
     let wreckSpin = 0;
 
-    const MAX_SPEED = 0.042;
-    const ACCEL = 0.00042;
-    const BRAKE = 0.0011;
-    const DRAG = 0.00018;
-    const STEER = 0.07;
+    // Slow, controllable pace
+    const MAX_SPEED = 0.012;
+    const ACCEL = 0.00012;
+    const BRAKE = 0.00045;
+    const DRAG = 0.00006;
+    const STEER = 0.045;
 
     function hardReset() {
       t = 0;
@@ -479,11 +402,6 @@ export function CarGame({ open, onClose }: CarGameProps) {
       setScore(0);
       setLaps(0);
       setHudSpeed(0);
-      for (let i = 0; i < ai.length; i++) {
-        ai[i].t = 0.18 + i * 0.14;
-        ai[i].lateral = ((i % 3) - 1) * 1.3;
-        ai[i].speed = 0.008 + i * 0.0012;
-      }
     }
     api.current.reset = hardReset;
 
@@ -500,14 +418,16 @@ export function CarGame({ open, onClose }: CarGameProps) {
       });
     }
 
-    // Start with protection so opening / first frames never false-wreck
     protect = 999;
     placeOnTrack(curve, t, lateral, tmpPos, tmpQuat);
     player.position.copy(tmpPos);
     player.quaternion.copy(tmpQuat);
     const { tangent: t0 } = sideAt(curve, t);
-    camera.position.copy(tmpPos).addScaledVector(t0, -10).add(new THREE.Vector3(0, 5, 0));
-    camera.lookAt(tmpPos.clone().addScaledVector(t0, 8));
+    camera.position
+      .copy(tmpPos)
+      .addScaledVector(t0, -16)
+      .add(new THREE.Vector3(0, 8, 0));
+    camera.lookAt(tmpPos.clone().addScaledVector(t0, 12));
 
     let raf = 0;
     const clock = new THREE.Clock();
@@ -517,7 +437,6 @@ export function CarGame({ open, onClose }: CarGameProps) {
       const keys = api.current.keys;
 
       if (api.current.started && protect > 100) {
-        // first start: convert infinite protect to real spawn shield
         protect = 2.2;
       }
 
@@ -529,36 +448,32 @@ export function CarGame({ open, onClose }: CarGameProps) {
         const left = keys.has("a") || keys.has("arrowleft");
         const right = keys.has("d") || keys.has("arrowright");
 
-        // Space is start only — not permanent throttle (was causing weirdness)
         if (throttle) speed = Math.min(MAX_SPEED, speed + ACCEL);
         if (braking) speed = Math.max(0, speed - BRAKE);
         speed = Math.max(0, speed - DRAG);
 
         const steer = (left ? 1 : 0) + (right ? -1 : 0);
-        lateral += steer * STEER * (0.55 + speed * 14);
+        lateral += steer * STEER * (0.7 + speed * 10);
 
-        // Hot corner push-out
         const { tangent } = sideAt(curve, t);
-        const nextTan = sideAt(curve, (t + 0.012) % 1).tangent;
+        const nextTan = sideAt(curve, (t + 0.01) % 1).tangent;
         const curvature = 1 - Math.max(0, tangent.dot(nextTan));
-        if (speed > 0.024 && curvature > 0.012) {
-          lateral += Math.sign(lateral || steer || 1) * curvature * speed * 40;
-          speed *= 0.994;
+        if (speed > 0.008 && curvature > 0.01) {
+          lateral += Math.sign(lateral || steer || 1) * curvature * speed * 22;
+          speed *= 0.997;
         }
 
-        // Soft keep-in near edges (still punishing)
-        if (Math.abs(lateral) > TRACK_HALF * 0.92) {
-          lateral += -Math.sign(lateral) * 0.035;
-          speed *= 0.97;
+        if (Math.abs(lateral) > TRACK_HALF * 0.94) {
+          lateral += -Math.sign(lateral) * 0.04;
+          speed *= 0.98;
         }
 
         t = (t + speed) % 1;
-        distance += speed * 140;
+        distance += speed * 160;
 
         if (lastT > 0.8 && t < 0.2) {
           lapCount += 1;
           setLaps(lapCount);
-          for (const car of ai) car.speed = Math.min(0.028, car.speed * 1.05);
         }
         lastT = t;
 
@@ -566,40 +481,10 @@ export function CarGame({ open, onClose }: CarGameProps) {
           crash(Math.floor(distance + lapCount * 500));
         }
 
-        for (const car of ai) {
-          car.t = (car.t + car.speed) % 1;
-          car.lateral += Math.sin(performance.now() * 0.001 + car.t * 20) * 0.008;
-          car.lateral = THREE.MathUtils.clamp(
-            car.lateral,
-            -TRACK_HALF + 0.5,
-            TRACK_HALF - 0.5,
-          );
-          placeOnTrack(curve, car.t, car.lateral, tmpPos, tmpQuat);
-          car.mesh.position.copy(tmpPos);
-          car.mesh.quaternion.copy(tmpQuat);
-
-          let wrap = Math.abs(car.t - t);
-          wrap = Math.min(wrap, 1 - wrap);
-          if (
-            protect <= 0 &&
-            wrap < 0.012 &&
-            Math.abs(car.lateral - lateral) < 1.05
-          ) {
-            crash(Math.floor(distance + lapCount * 500));
-          }
-        }
-
         setScore(Math.floor(distance + lapCount * 500));
-        setHudSpeed(Math.floor(speed * 4800));
+        setHudSpeed(Math.floor(speed * 5200));
       } else if (!api.current.started) {
-        // Gentle preview orbit along track
-        t = (t + dt * 0.03) % 1;
-        for (const car of ai) {
-          car.t = (car.t + car.speed * 0.35) % 1;
-          placeOnTrack(curve, car.t, car.lateral, tmpPos, tmpQuat);
-          car.mesh.position.copy(tmpPos);
-          car.mesh.quaternion.copy(tmpQuat);
-        }
+        t = (t + dt * 0.015) % 1;
       } else if (!api.current.alive) {
         wreckSpin += dt;
       }
@@ -616,19 +501,18 @@ export function CarGame({ open, onClose }: CarGameProps) {
       const { tangent } = sideAt(curve, t);
       camTarget
         .copy(tmpPos)
-        .addScaledVector(tangent, -9.5)
-        .add(new THREE.Vector3(0, 4.8, 0));
+        .addScaledVector(tangent, -14)
+        .add(new THREE.Vector3(0, 7, 0));
       lookTarget
         .copy(tmpPos)
-        .addScaledVector(tangent, 7)
-        .add(new THREE.Vector3(0, 0.8, 0));
+        .addScaledVector(tangent, 10)
+        .add(new THREE.Vector3(0, 1, 0));
 
-      camera.position.lerp(camTarget, api.current.started ? 0.14 : 0.06);
+      camera.position.lerp(camTarget, api.current.started ? 0.12 : 0.05);
       camera.lookAt(lookTarget);
 
-      // Keep camera from dipping into ground
-      if (camera.position.y < tmpPos.y + 2.5) {
-        camera.position.y = tmpPos.y + 2.5;
+      if (camera.position.y < tmpPos.y + 3.5) {
+        camera.position.y = tmpPos.y + 3.5;
       }
 
       renderer.render(scene, camera);
@@ -720,7 +604,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
                     <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-muted">
                       W gas · S brake · A D steer
                       <br />
-                      Brake before corners or kiss the wall
+                      Stay on the big circuit — walls still hurt
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
                       Space / W to start
