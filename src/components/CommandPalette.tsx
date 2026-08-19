@@ -115,18 +115,43 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
           window.dispatchEvent(new Event("sp-theme-change"));
         },
       },
+      {
+        id: "garage",
+        label: "Open Midnight Circuit",
+        hint: "◆ secret garage",
+        group: "Secret",
+        run: () => window.dispatchEvent(new Event("sp-open-garage")),
+      },
     ],
     [push],
   );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return commands;
-    return commands.filter(
+    const visible = commands.filter((c) => {
+      if (c.group === "Secret") {
+        if (!q) return false;
+        return (
+          q.includes("garage") ||
+          q.includes("vroom") ||
+          q.includes("car") ||
+          q.includes("secret") ||
+          q.includes("race") ||
+          q.includes("circuit")
+        );
+      }
+      return true;
+    });
+    if (!q) return visible;
+    return visible.filter(
       (c) =>
         c.label.toLowerCase().includes(q) ||
         c.hint.toLowerCase().includes(q) ||
-        c.group.toLowerCase().includes(q),
+        c.group.toLowerCase().includes(q) ||
+        (c.group === "Secret" &&
+          ["garage", "vroom", "car", "secret", "race", "circuit"].some((k) =>
+            q.includes(k),
+          )),
     );
   }, [commands, query]);
 

@@ -78,6 +78,7 @@ export function Nav() {
       >
         <a
           href="#top"
+          data-secret-monogram
           className="font-mono text-xs uppercase tracking-[0.2em] text-fg transition-opacity hover:opacity-70"
           onClick={() => setOpen(false)}
         >
