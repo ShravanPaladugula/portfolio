@@ -369,21 +369,23 @@ export function CarGame({ open, onClose }: CarGameProps) {
     const camTarget = new THREE.Vector3();
     const lookTarget = new THREE.Vector3();
 
+    const trackLen = Math.max(1, curve.getLength());
+
     let t = 0.0;
     let lateral = 0;
-    let speed = 0;
+    let speed = 0; // world units / second
     let distance = 0;
     let lapCount = 0;
     let lastT = 0;
     let protect = 0;
     let wreckSpin = 0;
 
-    // Slow, controllable pace
-    const MAX_SPEED = 0.012;
-    const ACCEL = 0.00012;
-    const BRAKE = 0.00045;
-    const DRAG = 0.00006;
-    const STEER = 0.045;
+    // Slow cruise — arc-length based so a big track doesn't feel rocket-fast
+    const MAX_SPEED = 16;
+    const ACCEL = 9;
+    const BRAKE = 20;
+    const DRAG = 5;
+    const STEER_RATE = 5.5; // only while holding A/D
 
     function hardReset() {
       t = 0;
@@ -448,28 +450,16 @@ export function CarGame({ open, onClose }: CarGameProps) {
         const left = keys.has("a") || keys.has("arrowleft");
         const right = keys.has("d") || keys.has("arrowright");
 
-        if (throttle) speed = Math.min(MAX_SPEED, speed + ACCEL);
-        if (braking) speed = Math.max(0, speed - BRAKE);
-        speed = Math.max(0, speed - DRAG);
+        if (throttle) speed = Math.min(MAX_SPEED, speed + ACCEL * dt);
+        if (braking) speed = Math.max(0, speed - BRAKE * dt);
+        speed = Math.max(0, speed - DRAG * dt);
 
-        const steer = (left ? 1 : 0) + (right ? -1 : 0);
-        lateral += steer * STEER * (0.7 + speed * 10);
+        // Manual steer only — no auto corner push / wall suck
+        if (left && !right) lateral += STEER_RATE * dt;
+        if (right && !left) lateral -= STEER_RATE * dt;
 
-        const { tangent } = sideAt(curve, t);
-        const nextTan = sideAt(curve, (t + 0.01) % 1).tangent;
-        const curvature = 1 - Math.max(0, tangent.dot(nextTan));
-        if (speed > 0.008 && curvature > 0.01) {
-          lateral += Math.sign(lateral || steer || 1) * curvature * speed * 22;
-          speed *= 0.997;
-        }
-
-        if (Math.abs(lateral) > TRACK_HALF * 0.94) {
-          lateral += -Math.sign(lateral) * 0.04;
-          speed *= 0.98;
-        }
-
-        t = (t + speed) % 1;
-        distance += speed * 160;
+        t = (t + (speed * dt) / trackLen) % 1;
+        distance += speed * dt;
 
         if (lastT > 0.8 && t < 0.2) {
           lapCount += 1;
@@ -482,9 +472,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
         }
 
         setScore(Math.floor(distance + lapCount * 500));
-        setHudSpeed(Math.floor(speed * 5200));
+        setHudSpeed(Math.floor(speed * 2.2));
       } else if (!api.current.started) {
-        t = (t + dt * 0.015) % 1;
+        t = (t + (4 * dt) / trackLen) % 1;
       } else if (!api.current.alive) {
         wreckSpin += dt;
       }
@@ -599,12 +589,12 @@ export function CarGame({ open, onClose }: CarGameProps) {
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
                   <div className="max-w-sm border border-accent/50 bg-bg/85 px-4 py-3 text-center backdrop-blur-sm">
                     <p className="font-display text-xl font-bold tracking-tight">
-                      Low-poly. High pain.
+                      Solo circuit
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-muted">
-                      W gas · S brake · A D steer
+                      W gas · S brake · hold A/D to steer
                       <br />
-                      Stay on the big circuit — walls still hurt
+                      No auto-steer — you drive it
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
                       Space / W to start
