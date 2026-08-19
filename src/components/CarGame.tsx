@@ -2,214 +2,57 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import * as THREE from "three";
 
 type CarGameProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const TRACK_HALF = 5.5;
-const WALL = TRACK_HALF + 0.25;
+type Obstacle = { lane: number; y: number; color: string };
 
-function isTypingTarget(target: EventTarget | null) {
-  const el = target as HTMLElement | null;
-  return (
-    !!el &&
-    (el.tagName === "INPUT" ||
-      el.tagName === "TEXTAREA" ||
-      el.isContentEditable)
-  );
-}
-
-function sideAt(curve: THREE.CatmullRomCurve3, t: number) {
-  const tangent = curve.getTangentAt(t).normalize();
-  const side = new THREE.Vector3()
-    .crossVectors(new THREE.Vector3(0, 1, 0), tangent)
-    .normalize();
-  if (side.lengthSq() < 0.01) {
-    side.set(1, 0, 0);
-  }
-  return { tangent, side };
-}
-
-function placeOnTrack(
-  curve: THREE.CatmullRomCurve3,
-  t: number,
-  lateral: number,
-  outPos: THREE.Vector3,
-  outQuat: THREE.Quaternion,
-) {
-  const p = curve.getPointAt(((t % 1) + 1) % 1);
-  const { tangent, side } = sideAt(curve, ((t % 1) + 1) % 1);
-  outPos.copy(p).addScaledVector(side, lateral);
-  outPos.y += 0.02;
-
-  const forward = outPos.clone().add(tangent);
-  const m = new THREE.Matrix4();
-  m.lookAt(outPos, forward, new THREE.Vector3(0, 1, 0));
-  outQuat.setFromRotationMatrix(m);
-}
-
-/** Flat ribbon road (not a tube — tubes clip the camera). */
-function buildRoadGeometry(curve: THREE.CatmullRomCurve3, halfW: number, segments = 220) {
-  const positions: number[] = [];
-  const normals: number[] = [];
-  const indices: number[] = [];
-
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const p = curve.getPointAt(t);
-    const { side } = sideAt(curve, t);
-    const y = p.y + 0.02;
-    const l = p.clone().addScaledVector(side, -halfW);
-    const r = p.clone().addScaledVector(side, halfW);
-    positions.push(l.x, y, l.z, r.x, y, r.z);
-    normals.push(0, 1, 0, 0, 1, 0);
-  }
-
-  for (let i = 0; i < segments; i++) {
-    const a = i * 2;
-    indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setAttribute("normal", new THREE.Float32BufferAttribute(normals, 3));
-  geo.setIndex(indices);
-  geo.computeBoundingSphere();
-  return geo;
-}
-
-function buildCenterLine(curve: THREE.CatmullRomCurve3, halfW: number, segments = 220) {
-  const positions: number[] = [];
-  const indices: number[] = [];
-  const w = 0.08;
-
-  for (let i = 0; i <= segments; i++) {
-    const t = i / segments;
-    const p = curve.getPointAt(t);
-    const { side } = sideAt(curve, t);
-    const y = p.y + 0.04;
-    const l = p.clone().addScaledVector(side, -w);
-    const r = p.clone().addScaledVector(side, w);
-    positions.push(l.x, y, l.z, r.x, y, r.z);
-  }
-  for (let i = 0; i < segments; i++) {
-    // dashed: skip every other block of segments
-    if (Math.floor(i / 4) % 2 === 1) continue;
-    const a = i * 2;
-    indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-  }
-
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geo.setIndex(indices);
-  return geo;
-}
-
-function makeLowPolyCar(color: string, accent = "#3DFFC8") {
-  const g = new THREE.Group();
-  const bodyMat = new THREE.MeshLambertMaterial({ color, flatShading: true });
-  const darkMat = new THREE.MeshLambertMaterial({
-    color: "#111318",
-    flatShading: true,
-  });
-  const glassMat = new THREE.MeshLambertMaterial({
-    color: "#8ec8ff",
-    flatShading: true,
-  });
-  const accentMat = new THREE.MeshLambertMaterial({
-    color: accent,
-    flatShading: true,
-  });
-
-  const body = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.38, 2.0), bodyMat);
-  body.position.y = 0.42;
-  g.add(body);
-
-  const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.34, 0.95), darkMat);
-  cabin.position.set(0, 0.72, -0.08);
-  g.add(cabin);
-
-  const glass = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.24, 0.06), glassMat);
-  glass.position.set(0, 0.74, 0.4);
-  g.add(glass);
-
-  const spoiler = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.07, 0.24),
-    accentMat,
-  );
-  spoiler.position.set(0, 0.66, -0.95);
-  g.add(spoiler);
-
-  for (const [x, z] of [
-    [-0.45, 0.65],
-    [0.45, 0.65],
-    [-0.45, -0.7],
-    [0.45, -0.7],
-  ] as const) {
-    const wheel = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.26, 0.26, 0.2, 8),
-      darkMat,
-    );
-    wheel.rotation.z = Math.PI / 2;
-    wheel.position.set(x, 0.26, z);
-    g.add(wheel);
-  }
-
-  return g;
-}
-
-function buildTrackCurve() {
-  // Large open circuit (scaled up)
-  const pts = [
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(60, 0, 24),
-    new THREE.Vector3(100, 0, 70),
-    new THREE.Vector3(90, 0, 125),
-    new THREE.Vector3(35, 0, 145),
-    new THREE.Vector3(-20, 0, 125),
-    new THREE.Vector3(-50, 0, 85),
-    new THREE.Vector3(-90, 0, 105),
-    new THREE.Vector3(-120, 0, 60),
-    new THREE.Vector3(-100, 0, 10),
-    new THREE.Vector3(-55, 0, -30),
-    new THREE.Vector3(-5, 0, -50),
-    new THREE.Vector3(35, 0, -35),
-    new THREE.Vector3(50, 0, -10),
-  ];
-  return new THREE.CatmullRomCurve3(pts, true, "catmullrom", 0.45);
-}
+const LANES = 3;
+const W = 360;
+const H = 560;
 
 export function CarGame({ open, onClose }: CarGameProps) {
-  const mountRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
-  const [laps, setLaps] = useState(0);
   const [alive, setAlive] = useState(true);
   const [started, setStarted] = useState(false);
-  const [hudSpeed, setHudSpeed] = useState(0);
 
-  const api = useRef({
-    started: false,
-    alive: true,
-    reset: () => {},
+  const state = useRef({
+    lane: 1,
+    targetLane: 1,
+    y: H - 110,
+    speed: 4.2,
+    distance: 0,
+    obstacles: [] as Obstacle[],
+    spawn: 0,
+    roadOffset: 0,
+    crash: false,
     keys: new Set<string>(),
   });
 
   useEffect(() => {
     if (!open) return;
-    const stored = Number(window.localStorage.getItem("sp-garage-3d-best") || 0);
+    const stored = Number(window.localStorage.getItem("sp-garage-best") || 0);
     setBest(Number.isFinite(stored) ? stored : 0);
     setScore(0);
-    setLaps(0);
     setAlive(true);
     setStarted(false);
-    setHudSpeed(0);
-    api.current.started = false;
-    api.current.alive = true;
-    api.current.keys.clear();
+    state.current = {
+      lane: 1,
+      targetLane: 1,
+      y: H - 110,
+      speed: 4.2,
+      distance: 0,
+      obstacles: [],
+      spawn: 0,
+      roadOffset: 0,
+      crash: false,
+      keys: new Set(),
+    };
   }, [open]);
 
   useEffect(() => {
@@ -224,360 +67,217 @@ export function CarGame({ open, onClose }: CarGameProps) {
   useEffect(() => {
     if (!open) return;
 
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
         onClose();
         return;
       }
-      if (isTypingTarget(e.target)) return;
       const k = e.key.toLowerCase();
-      if (
-        ["arrowleft", "arrowright", "arrowup", "arrowdown", "a", "d", "w", "s", " "].includes(
-          k,
-        )
-      ) {
+      if (["arrowleft", "a", "arrowright", "d", " ", "arrowup", "w"].includes(k)) {
         e.preventDefault();
       }
-
-      if (!api.current.started && (k === " " || k === "enter" || k === "w")) {
-        api.current.started = true;
+      if (!started && (k === " " || k === "enter" || k === "arrowup" || k === "w")) {
         setStarted(true);
-      }
-      if (!api.current.alive && (k === "r" || k === " " || k === "enter")) {
-        api.current.reset();
         return;
       }
-
-      api.current.keys.add(k);
-      if (e.code === "ArrowLeft") api.current.keys.add("arrowleft");
-      if (e.code === "ArrowRight") api.current.keys.add("arrowright");
-      if (e.code === "ArrowUp") api.current.keys.add("arrowup");
-      if (e.code === "ArrowDown") api.current.keys.add("arrowdown");
-      if (e.code === "Space") api.current.keys.add(" ");
+      if (!alive && (k === " " || k === "enter" || k === "r")) {
+        resetRun();
+        return;
+      }
+      if (k === "arrowleft" || k === "a") {
+        state.current.targetLane = Math.max(0, state.current.targetLane - 1);
+      }
+      if (k === "arrowright" || k === "d") {
+        state.current.targetLane = Math.min(LANES - 1, state.current.targetLane + 1);
+      }
     };
 
-    const onKeyUp = (e: KeyboardEvent) => {
-      const k = e.key.toLowerCase();
-      api.current.keys.delete(k);
-      if (e.code === "ArrowLeft") api.current.keys.delete("arrowleft");
-      if (e.code === "ArrowRight") api.current.keys.delete("arrowright");
-      if (e.code === "ArrowUp") api.current.keys.delete("arrowup");
-      if (e.code === "ArrowDown") api.current.keys.delete("arrowdown");
-      if (e.code === "Space") api.current.keys.delete(" ");
-    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose, started, alive]);
 
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, [open, onClose]);
+  function resetRun() {
+    state.current.lane = 1;
+    state.current.targetLane = 1;
+    state.current.speed = 4.2;
+    state.current.distance = 0;
+    state.current.obstacles = [];
+    state.current.spawn = 0;
+    state.current.crash = false;
+    setScore(0);
+    setAlive(true);
+    setStarted(true);
+  }
 
   useEffect(() => {
-    if (!open || !mountRef.current) return;
-
-    const mount = mountRef.current;
-    const width = Math.max(320, mount.clientWidth || 420);
-    const height = Math.min(520, Math.max(400, Math.floor(width * 1.15)));
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(width, height);
-    renderer.setClearColor(0x0a0b0d);
-    renderer.shadowMap.enabled = true;
-    mount.innerHTML = "";
-    mount.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x0a0b0d, 60, 220);
-
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.5, 400);
-    camera.position.set(0, 18, 28);
-
-    scene.add(new THREE.HemisphereLight(0xc5ceda, 0x1a1d22, 1.0));
-    const sun = new THREE.DirectionalLight(0xffffff, 1.15);
-    sun.position.set(40, 60, 25);
-    sun.castShadow = true;
-    scene.add(sun);
-
-    const curve = buildTrackCurve();
-
-    const roadGeo = buildRoadGeometry(curve, TRACK_HALF, 320);
-    const road = new THREE.Mesh(
-      roadGeo,
-      new THREE.MeshLambertMaterial({
-        color: 0x2a2e36,
-        flatShading: true,
-        side: THREE.DoubleSide,
-      }),
-    );
-    road.receiveShadow = true;
-    scene.add(road);
-
-    const lineGeo = buildCenterLine(curve, TRACK_HALF, 320);
-    const centerLine = new THREE.Mesh(
-      lineGeo,
-      new THREE.MeshLambertMaterial({
-        color: 0x3dffc8,
-        flatShading: true,
-        side: THREE.DoubleSide,
-      }),
-    );
-    scene.add(centerLine);
-
-    const barrierMat = new THREE.MeshLambertMaterial({
-      color: 0x232830,
-      flatShading: true,
-    });
-    const stripeMat = new THREE.MeshLambertMaterial({
-      color: 0x3dffc8,
-      flatShading: true,
-    });
-
-    for (const sideSign of [-1, 1] as const) {
-      for (let i = 0; i < 96; i++) {
-        const tt = i / 96;
-        const p = curve.getPointAt(tt);
-        const { tangent, side } = sideAt(curve, tt);
-        const post = new THREE.Mesh(
-          new THREE.BoxGeometry(0.35, 0.65, 2.0),
-          i % 2 === 0 ? barrierMat : stripeMat,
-        );
-        post.position.copy(p).addScaledVector(side, sideSign * (TRACK_HALF + 0.25));
-        post.position.y = 0.32;
-        const look = p.clone().add(tangent);
-        post.lookAt(look.x, post.position.y, look.z);
-        scene.add(post);
-      }
-    }
-
-    const ground = new THREE.Mesh(
-      new THREE.CircleGeometry(200, 16),
-      new THREE.MeshLambertMaterial({ color: 0x101318, flatShading: true }),
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.15;
-    scene.add(ground);
-
-    const player = makeLowPolyCar("#3DFFC8", "#F1F2F4");
-    scene.add(player);
-
-    const camTarget = new THREE.Vector3();
-    const lookTarget = new THREE.Vector3();
-    const nearestPoint = new THREE.Vector3();
-
-    const startPoint = curve.getPointAt(0);
-    const startTan = curve.getTangentAt(0).normalize();
-    // yaw so local +Z aligns with track tangent
-    let yaw = Math.atan2(startTan.x, startTan.z);
-    let posX = startPoint.x;
-    let posZ = startPoint.z;
-    let speed = 0;
-    let distance = 0;
-    let lapCount = 0;
-    let lastT = 0;
-    let protect = 0;
-    let wreckSpin = 0;
-    let previewT = 0;
-
-    const MAX_SPEED = 14;
-    const ACCEL = 8;
-    const BRAKE = 18;
-    const DRAG = 4.5;
-    const TURN_RATE = 1.85; // rad/sec — car actually rotates
-
-    function nearestTrack(x: number, z: number) {
-      let bestT = 0;
-      let bestD = Infinity;
-      const samples = 180;
-      for (let i = 0; i <= samples; i++) {
-        const tt = i / samples;
-        const p = curve.getPointAt(tt);
-        const d = (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z);
-        if (d < bestD) {
-          bestD = d;
-          bestT = tt;
-        }
-      }
-      // local refine
-      for (const delta of [-0.008, -0.004, 0.004, 0.008]) {
-        const tt = (bestT + delta + 1) % 1;
-        const p = curve.getPointAt(tt);
-        const d = (p.x - x) * (p.x - x) + (p.z - z) * (p.z - z);
-        if (d < bestD) {
-          bestD = d;
-          bestT = tt;
-        }
-      }
-      nearestPoint.copy(curve.getPointAt(bestT));
-      const { tangent, side } = sideAt(curve, bestT);
-      const lateral =
-        (x - nearestPoint.x) * side.x + (z - nearestPoint.z) * side.z;
-      return {
-        t: bestT,
-        dist: Math.sqrt(bestD),
-        lateral,
-        tangent,
-      };
-    }
-
-    function spawnCar() {
-      const p = curve.getPointAt(0);
-      const tan = curve.getTangentAt(0).normalize();
-      posX = p.x;
-      posZ = p.z;
-      yaw = Math.atan2(tan.x, tan.z);
-      speed = 0;
-      distance = 0;
-      lapCount = 0;
-      lastT = 0;
-      wreckSpin = 0;
-      player.position.set(posX, 0.02, posZ);
-      player.rotation.set(0, yaw, 0);
-    }
-
-    function hardReset() {
-      spawnCar();
-      protect = 2.2;
-      api.current.alive = true;
-      api.current.started = true;
-      setAlive(true);
-      setStarted(true);
-      setScore(0);
-      setLaps(0);
-      setHudSpeed(0);
-    }
-    api.current.reset = hardReset;
-
-    function crash(finalScore: number) {
-      if (!api.current.alive || protect > 0) return;
-      api.current.alive = false;
-      speed = 0;
-      setAlive(false);
-      setScore(finalScore);
-      setBest((b) => {
-        const next = Math.max(b, finalScore);
-        window.localStorage.setItem("sp-garage-3d-best", String(next));
-        return next;
-      });
-    }
-
-    protect = 999;
-    spawnCar();
-    camera.position.set(posX - startTan.x * 16, 8, posZ - startTan.z * 16);
-    camera.lookAt(posX + startTan.x * 8, 1, posZ + startTan.z * 8);
+    if (!open) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     let raf = 0;
-    const clock = new THREE.Clock();
+    const laneX = (lane: number) => {
+      const pad = 48;
+      const usable = W - pad * 2;
+      const laneW = usable / LANES;
+      return pad + laneW * lane + laneW / 2;
+    };
+
+    const drawCar = (x: number, y: number, color: string, player = false) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.roundRect(-16, -28, 32, 56, 6);
+      ctx.fill();
+      ctx.fillStyle = player ? "#0A0B0D" : "rgba(10,11,13,0.55)";
+      ctx.fillRect(-12, -18, 24, 14);
+      ctx.fillRect(-12, 4, 24, 12);
+      ctx.fillStyle = "#3DFFC8";
+      if (player) {
+        ctx.fillRect(-10, 22, 6, 4);
+        ctx.fillRect(4, 22, 6, 4);
+      } else {
+        ctx.fillStyle = "#F1F2F4";
+        ctx.fillRect(-10, -26, 6, 4);
+        ctx.fillRect(4, -26, 6, 4);
+      }
+      ctx.restore();
+    };
 
     const tick = () => {
-      const dt = Math.min(clock.getDelta(), 0.033);
-      const keys = api.current.keys;
+      const s = state.current;
+      const styles = getComputedStyle(document.documentElement);
+      const ink = styles.getPropertyValue("--ink").trim() || "#0A0B0D";
+      const porcelain = styles.getPropertyValue("--porcelain").trim() || "#E9EBEF";
+      const accent = styles.getPropertyValue("--accent").trim() || "#3DFFC8";
+      const line = styles.getPropertyValue("--line").trim() || "#24272D";
+      const isLight = document.documentElement.classList.contains("light");
+      const road = isLight ? "#1a1d22" : "#121418";
+      const asphaltLine = isLight ? "#3a4048" : "#2a2e36";
 
-      if (api.current.started && protect > 100) {
-        protect = 2.2;
+      // smooth lane lerp
+      s.lane += (s.targetLane - s.lane) * 0.22;
+
+      if (started && !s.crash) {
+        s.speed += 0.0012;
+        s.distance += s.speed * 0.35;
+        s.roadOffset = (s.roadOffset + s.speed * 1.8) % 40;
+        s.spawn -= 1;
+        if (s.spawn <= 0) {
+          const lane = Math.floor(Math.random() * LANES);
+          const colors = ["#8B909A", "#5C6370", "#F1F2F4", "#2AE0B0"];
+          s.obstacles.push({
+            lane,
+            y: -60,
+            color: colors[Math.floor(Math.random() * colors.length)],
+          });
+          s.spawn = Math.max(28, 70 - s.speed * 4) + Math.random() * 18;
+        }
+        for (const o of s.obstacles) {
+          o.y += s.speed * 1.55;
+        }
+        s.obstacles = s.obstacles.filter((o) => o.y < H + 80);
+
+        const px = laneX(s.lane);
+        const py = s.y;
+        for (const o of s.obstacles) {
+          const ox = laneX(o.lane);
+          if (Math.abs(ox - px) < 30 && Math.abs(o.y - py) < 52) {
+            s.crash = true;
+            const finalScore = Math.floor(s.distance);
+            setScore(finalScore);
+            setAlive(false);
+            setBest((b) => {
+              const next = Math.max(b, finalScore);
+              window.localStorage.setItem("sp-garage-best", String(next));
+              return next;
+            });
+            break;
+          }
+        }
+        if (!s.crash) setScore(Math.floor(s.distance));
       }
 
-      if (api.current.started && api.current.alive) {
-        protect = Math.max(0, protect - dt);
+      // draw
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = ink;
+      ctx.fillRect(0, 0, W, H);
 
-        const throttle = keys.has("w") || keys.has("arrowup");
-        const braking = keys.has("s") || keys.has("arrowdown");
-        const left = keys.has("a") || keys.has("arrowleft");
-        const right = keys.has("d") || keys.has("arrowright");
+      // roadside
+      ctx.fillStyle = isLight ? porcelain : "#0d0f12";
+      ctx.fillRect(0, 0, 40, H);
+      ctx.fillRect(W - 40, 0, 40, H);
 
-        // Turn the car (yaw) — this is real steering
-        if (left && !right) yaw += TURN_RATE * dt;
-        if (right && !left) yaw -= TURN_RATE * dt;
+      // road
+      ctx.fillStyle = road;
+      ctx.fillRect(40, 0, W - 80, H);
 
-        if (throttle) speed = Math.min(MAX_SPEED, speed + ACCEL * dt);
-        if (braking) speed = Math.max(0, speed - BRAKE * dt);
-        speed = Math.max(0, speed - DRAG * dt);
+      // lane dashes
+      ctx.strokeStyle = asphaltLine;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([18, 22]);
+      ctx.lineDashOffset = -s.roadOffset;
+      for (let i = 1; i < LANES; i++) {
+        const x = 40 + ((W - 80) / LANES) * i;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
 
-        const fx = Math.sin(yaw);
-        const fz = Math.cos(yaw);
-        posX += fx * speed * dt;
-        posZ += fz * speed * dt;
-        distance += speed * dt;
+      // edge lines
+      ctx.strokeStyle = accent;
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(44, 0);
+      ctx.lineTo(44, H);
+      ctx.moveTo(W - 44, 0);
+      ctx.lineTo(W - 44, H);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
 
-        player.position.set(posX, 0.02, posZ);
-        player.rotation.set(0, yaw, 0);
+      for (const o of s.obstacles) {
+        drawCar(laneX(o.lane), o.y, o.color);
+      }
+      drawCar(laneX(s.lane), s.y, accent, true);
 
-        const track = nearestTrack(posX, posZ);
-
-        if (lastT > 0.8 && track.t < 0.2) {
-          lapCount += 1;
-          setLaps(lapCount);
-        }
-        lastT = track.t;
-
-        if (Math.abs(track.lateral) > WALL || track.dist > WALL + 1.5) {
-          crash(Math.floor(distance + lapCount * 500));
-        }
-
-        setScore(Math.floor(distance + lapCount * 500));
-        setHudSpeed(Math.floor(speed * 2.4));
-
-        camTarget.set(
-          posX - fx * 14,
-          7,
-          posZ - fz * 14,
-        );
-        lookTarget.set(posX + fx * 10, 1, posZ + fz * 10);
-      } else if (!api.current.started) {
-        previewT = (previewT + dt * 0.05) % 1;
-        const p = curve.getPointAt(previewT);
-        const tan = curve.getTangentAt(previewT).normalize();
-        player.position.set(p.x, 0.02, p.z);
-        player.rotation.set(0, Math.atan2(tan.x, tan.z), 0);
-        camTarget.set(p.x - tan.x * 16, 9, p.z - tan.z * 16);
-        lookTarget.set(p.x + tan.x * 8, 1, p.z + tan.z * 8);
-      } else if (!api.current.alive) {
-        wreckSpin += dt;
-        player.rotation.set(0, yaw, Math.sin(wreckSpin * 8) * 0.4);
-        const fx = Math.sin(yaw);
-        const fz = Math.cos(yaw);
-        camTarget.set(posX - fx * 14, 7, posZ - fz * 14);
-        lookTarget.set(posX + fx * 6, 1, posZ + fz * 6);
+      if (s.crash) {
+        ctx.fillStyle = "rgba(10,11,13,0.55)";
+        ctx.fillRect(0, 0, W, H);
       }
 
-      camera.position.lerp(camTarget, api.current.started ? 0.12 : 0.05);
-      camera.lookAt(lookTarget);
-      if (camera.position.y < 3.5) camera.position.y = 3.5;
-
-      renderer.render(scene, camera);
       raf = requestAnimationFrame(tick);
     };
 
     raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [open, started]);
 
-    const onResize = () => {
-      if (!mountRef.current) return;
-      const w = Math.max(320, mountRef.current.clientWidth || width);
-      const h = Math.min(520, Math.max(400, Math.floor(w * 1.15)));
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", onResize);
-      roadGeo.dispose();
-      lineGeo.dispose();
-      renderer.dispose();
-      mount.innerHTML = "";
-    };
-  }, [open]);
+  function nudge(dir: -1 | 1) {
+    if (!started) {
+      setStarted(true);
+      return;
+    }
+    if (!alive) {
+      resetRun();
+      return;
+    }
+    state.current.targetLane = Math.max(
+      0,
+      Math.min(LANES - 1, state.current.targetLane + dir),
+    );
+  }
 
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[85] flex items-center justify-center bg-bg/85 px-3 backdrop-blur-sm sm:px-4"
+          className="fixed inset-0 z-[85] flex items-center justify-center bg-bg/80 px-4 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -586,8 +286,8 @@ export function CarGame({ open, onClose }: CarGameProps) {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Midnight Circuit 3D"
-            className="w-full max-w-[460px] overflow-hidden border border-line bg-bg shadow-[0_30px_80px_rgba(0,0,0,0.55)]"
+            aria-label="Secret garage car game"
+            className="w-full max-w-[400px] overflow-hidden border border-line bg-bg shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
             initial={{ opacity: 0, y: 18, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.98 }}
@@ -597,10 +297,10 @@ export function CarGame({ open, onClose }: CarGameProps) {
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                  Secret · Garage · Hard
+                  Secret · Garage
                 </p>
                 <p className="font-display text-lg font-bold tracking-tight">
-                  Midnight Circuit 3D
+                  Midnight Circuit
                 </p>
               </div>
               <button
@@ -612,90 +312,71 @@ export function CarGame({ open, onClose }: CarGameProps) {
               </button>
             </div>
 
-            <div className="relative bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))]">
-              <div ref={mountRef} className="mx-auto w-full touch-none" />
+            <div className="relative bg-[color-mix(in_oklab,var(--bg)_92%,var(--fg))] px-3 py-3">
+              <canvas
+                ref={canvasRef}
+                width={W}
+                height={H}
+                className="mx-auto block h-auto w-full max-w-[360px] touch-none border border-line"
+              />
 
-              <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-between gap-2 px-3 py-3 font-mono text-[10px] uppercase tracking-[0.14em] text-fg">
-                <span className="border border-line/80 bg-bg/70 px-2 py-1 backdrop-blur-sm">
-                  Score {score}
-                </span>
-                <span className="border border-line/80 bg-bg/70 px-2 py-1 backdrop-blur-sm">
-                  Lap {laps} · {hudSpeed} u/h
-                </span>
-                <span className="border border-line/80 bg-bg/70 px-2 py-1 backdrop-blur-sm">
-                  Best {best}
-                </span>
+              <div className="pointer-events-none absolute inset-x-3 top-5 flex justify-between px-3 font-mono text-[10px] uppercase tracking-[0.16em] text-fg">
+                <span>Score {score}</span>
+                <span>Best {best}</span>
               </div>
 
               {!started && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
-                  <div className="max-w-sm border border-accent/50 bg-bg/85 px-4 py-3 text-center backdrop-blur-sm">
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="border border-accent/50 bg-bg/80 px-4 py-3 text-center backdrop-blur-sm">
                     <p className="font-display text-xl font-bold tracking-tight">
-                      Solo circuit
+                      Ready?
                     </p>
-                    <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-muted">
-                      A/D turn the car · W gas · S brake
-                      <br />
-                      Point the nose, then drive
-                    </p>
-                    <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
-                      Space / W to start
+                    <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+                      Space / tap to start · A D or ← →
                     </p>
                   </div>
                 </div>
               )}
 
               {!alive && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
-                  <div className="border border-line bg-bg/90 px-4 py-3 text-center backdrop-blur-sm">
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <div className="border border-line bg-bg/85 px-4 py-3 text-center backdrop-blur-sm">
                     <p className="font-display text-xl font-bold tracking-tight">
-                      Wrecked
+                      Crashed
                     </p>
                     <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-                      Score {score} · R to rebuild
+                      Score {score} · R / Space to retry
                     </p>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-2 border-t border-line p-3 sm:hidden">
-              {(
-                [
-                  ["s", "Brake"],
-                  ["a", "←"],
-                  ["d", "→"],
-                  ["w", !started ? "Start" : !alive ? "Retry" : "Gas"],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key + label}
-                  type="button"
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    if (label === "Start") {
-                      api.current.started = true;
-                      setStarted(true);
-                      return;
-                    }
-                    if (label === "Retry") {
-                      api.current.reset();
-                      return;
-                    }
-                    api.current.keys.add(key);
-                  }}
-                  onPointerUp={() => api.current.keys.delete(key)}
-                  onPointerLeave={() => api.current.keys.delete(key)}
-                  onPointerCancel={() => api.current.keys.delete(key)}
-                  className={`border py-3 font-mono text-[10px] uppercase tracking-[0.14em] ${
-                    key === "w"
-                      ? "border-accent bg-accent/10 text-accent"
-                      : "border-line"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="grid grid-cols-3 gap-2 border-t border-line p-3 sm:hidden">
+              <button
+                type="button"
+                onClick={() => nudge(-1)}
+                className="border border-line py-3 font-mono text-[11px] uppercase tracking-[0.16em]"
+              >
+                ← Left
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!started) setStarted(true);
+                  else if (!alive) resetRun();
+                }}
+                className="border border-accent bg-accent/10 py-3 font-mono text-[11px] uppercase tracking-[0.16em] text-accent"
+              >
+                {!started ? "Start" : !alive ? "Retry" : "Go"}
+              </button>
+              <button
+                type="button"
+                onClick={() => nudge(1)}
+                className="border border-line py-3 font-mono text-[11px] uppercase tracking-[0.16em]"
+              >
+                Right →
+              </button>
             </div>
           </motion.div>
         </motion.div>
