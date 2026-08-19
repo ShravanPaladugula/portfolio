@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { getCommandShortcutLabel, useIsMac } from "@/lib/hotkeys";
 
 type StatusDockProps = {
   onOpenCommands: () => void;
@@ -8,6 +9,8 @@ type StatusDockProps = {
 
 export function StatusDock({ onOpenCommands }: StatusDockProps) {
   const reduce = useReducedMotion();
+  const isMac = useIsMac();
+  const shortcut = getCommandShortcutLabel(isMac);
 
   return (
     <motion.div
@@ -34,7 +37,7 @@ export function StatusDock({ onOpenCommands }: StatusDockProps) {
           className="font-mono text-[10px] uppercase tracking-[0.18em] text-fg transition-colors hover:text-accent"
         >
           <span className="hidden sm:inline">Commands </span>
-          <kbd className="border border-line px-1.5 py-0.5 text-muted">⌘K</kbd>
+          <kbd className="border border-line px-1.5 py-0.5 text-muted">{shortcut}</kbd>
         </button>
       </div>
     </motion.div>

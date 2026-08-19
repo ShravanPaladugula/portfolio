@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { profile } from "@/content/profile";
+import { getCommandShortcutLabel, useIsMac } from "@/lib/hotkeys";
 import { ThemeToggle } from "./ThemeToggle";
 
 const links = [
@@ -16,6 +17,8 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("top");
+  const isMac = useIsMac();
+  const shortcut = getCommandShortcutLabel(isMac);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -109,7 +112,7 @@ export function Nav() {
               className="hidden border border-fg/40 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted transition-colors hover:border-fg hover:text-fg lg:inline"
               aria-label="Open command palette"
             >
-              ⌘K
+              {shortcut}
             </button>
             <ThemeToggle />
             <a

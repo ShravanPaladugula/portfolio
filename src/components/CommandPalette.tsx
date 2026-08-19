@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { profile } from "@/content/profile";
 import { projects } from "@/content/projects";
+import { isCommandPaletteHotkey, useIsMac, getCommandShortcutLabel } from "@/lib/hotkeys";
 import { toggleTheme } from "@/lib/theme";
 import { useToast } from "./Toast";
 
@@ -22,6 +23,8 @@ type CommandPaletteProps = {
 
 export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const { push } = useToast();
+  const isMac = useIsMac();
+  const shortcut = getCommandShortcutLabel(isMac);
   const [query, setQuery] = useState("");
   const [index, setIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -146,8 +149,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const meta = e.metaKey || e.ctrlKey;
-      if (meta && e.key.toLowerCase() === "k") {
+      if (isCommandPaletteHotkey(e)) {
         e.preventDefault();
         onOpenChange(!open);
         return;
@@ -209,8 +211,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3 border-b border-line px-4 py-3">
-              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                ⌘K
+              <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
+                {shortcut}
               </span>
               <input
                 ref={inputRef}
