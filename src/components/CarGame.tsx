@@ -13,12 +13,13 @@ type Obstacle = {
   y: number;
   color: string;
   scored?: boolean;
+  wide?: boolean; // covers 2 lanes starting at `lane`
 };
 
 type Pickup = {
   lane: number;
   y: number;
-  kind: "orb" | "shield" | "nitro";
+  kind: "orb" | "shield" | "nitro" | "slow";
 };
 
 type Particle = {
@@ -43,31 +44,48 @@ const LANES = 3;
 const W = 360;
 const H = 560;
 
+function rankFor(score: number) {
+  if (score >= 8000) return "LEGEND";
+  if (score >= 4500) return "ACE";
+  if (score >= 2200) return "HOTLAP";
+  if (score >= 900) return "TUNER";
+  if (score >= 300) return "ROOKIE";
+  return "PIT";
+}
+
 function freshState() {
   return {
     lane: 1,
     targetLane: 1,
     y: H - 120,
-    speed: 3.6,
+    speed: 3.5,
     distance: 0,
     score: 0,
     combo: 0,
     mult: 1,
+    maxCombo: 0,
+    nearMisses: 0,
+    orbs: 0,
     obstacles: [] as Obstacle[],
     pickups: [] as Pickup[],
     particles: [] as Particle[],
     floaters: [] as Floater[],
-    spawn: 40,
-    pickupSpawn: 90,
+    spawn: 0.55,
+    pickupSpawn: 1.2,
     roadOffset: 0,
     crash: false,
     shake: 0,
     flash: 0,
-    trail: [] as { x: number; y: number }[],
-    nitro: 40,
+    trail: [] as { x: number; y: number; w: number }[],
+    nitro: 45,
     nitroOn: false,
     shield: 0,
     invuln: 0,
+    slowmo: 0,
+    fever: 0,
+    pulse: 0,
+    drift: 0,
+    time: 0,
   };
 }
 
@@ -76,6 +94,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
   const [combo, setCombo] = useState(0);
+  const [rank, setRank] = useState("PIT");
   const [alive, setAlive] = useState(true);
   const [started, setStarted] = useState(false);
   const startedRef = useRef(false);
@@ -89,6 +108,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
     setBest(Number.isFinite(stored) ? stored : 0);
     setScore(0);
     setCombo(0);
+    setRank("PIT");
     setAlive(true);
     setStarted(false);
     startedRef.current = false;
@@ -111,6 +131,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
     aliveRef.current = true;
     setScore(0);
     setCombo(0);
+    setRank("PIT");
     setAlive(true);
     setStarted(true);
   }
@@ -149,10 +170,14 @@ export function CarGame({ open, onClose }: CarGameProps) {
       if (!aliveRef.current || !startedRef.current) return;
 
       if (k === "arrowleft" || k === "a") {
-        state.current.targetLane = Math.max(0, state.current.targetLane - 1);
+        const next = Math.max(0, state.current.targetLane - 1);
+        if (next !== state.current.targetLane) state.current.drift = 1;
+        state.current.targetLane = next;
       }
       if (k === "arrowright" || k === "d") {
-        state.current.targetLane = Math.min(LANES - 1, state.current.targetLane + 1);
+        const next = Math.min(LANES - 1, state.current.targetLane + 1);
+        if (next !== state.current.targetLane) state.current.drift = -1;
+        state.current.targetLane = next;
       }
       if (k === " " || k === "shift") {
         state.current.nitroOn = true;
@@ -180,6 +205,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
     if (!ctx) return;
 
     let raf = 0;
+    let last = performance.now();
 
     const laneX = (lane: number) => {
       const pad = 48;
@@ -191,74 +217,88 @@ export function CarGame({ open, onClose }: CarGameProps) {
     const burst = (x: number, y: number, color: string, n = 14) => {
       for (let i = 0; i < n; i++) {
         const a = Math.random() * Math.PI * 2;
-        const sp = 1 + Math.random() * 3.5;
+        const sp = 1 + Math.random() * 4;
         state.current.particles.push({
           x,
           y,
           vx: Math.cos(a) * sp,
           vy: Math.sin(a) * sp,
-          life: 0.4 + Math.random() * 0.5,
+          life: 0.35 + Math.random() * 0.55,
           color,
-          size: 2 + Math.random() * 3,
+          size: 2 + Math.random() * 3.5,
         });
       }
     };
 
     const float = (x: number, y: number, text: string, color: string) => {
-      state.current.floaters.push({ x, y, text, life: 1, color });
+      state.current.floaters.push({ x, y, text, life: 1.1, color });
+    };
+
+    const vibe = (ms = 12) => {
+      try {
+        navigator.vibrate?.(ms);
+      } catch {
+        /* ignore */
+      }
     };
 
     const drawCar = (
       x: number,
       y: number,
       color: string,
-      player = false,
-      shield = false,
+      opts?: { player?: boolean; shield?: boolean; wide?: boolean; tilt?: number },
     ) => {
+      const player = !!opts?.player;
+      const shield = !!opts?.shield;
+      const wide = !!opts?.wide;
+      const tilt = opts?.tilt ?? 0;
+      const bw = wide ? 58 : 30;
+      const bh = wide ? 58 : 52;
+
       ctx.save();
       ctx.translate(x, y);
+      ctx.rotate(tilt);
 
       if (player && shield) {
-        ctx.strokeStyle = "rgba(61,255,200,0.7)";
+        ctx.strokeStyle = "rgba(61,255,200,0.75)";
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(0, 0, 34, 0, Math.PI * 2);
+        ctx.arc(0, 0, 36, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // body
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.roundRect(-15, -26, 30, 52, 7);
+      ctx.roundRect(-bw / 2, -bh / 2, bw, bh, wide ? 8 : 7);
       ctx.fill();
 
-      // cabin
       ctx.fillStyle = player ? "#0A0B0D" : "rgba(10,11,13,0.6)";
       ctx.beginPath();
-      ctx.roundRect(-11, -14, 22, 16, 4);
+      ctx.roundRect(-bw * 0.36, -bh * 0.28, bw * 0.72, bh * 0.32, 4);
       ctx.fill();
 
-      // lights
       if (player) {
         ctx.fillStyle = "#E8FFF7";
-        ctx.fillRect(-11, -26, 8, 4);
-        ctx.fillRect(3, -26, 8, 4);
+        ctx.fillRect(-bw * 0.36, -bh / 2, bw * 0.26, 4);
+        ctx.fillRect(bw * 0.1, -bh / 2, bw * 0.26, 4);
         ctx.fillStyle = "#3DFFC8";
-        ctx.fillRect(-10, 20, 7, 4);
-        ctx.fillRect(3, 20, 7, 4);
+        ctx.fillRect(-bw * 0.32, bh / 2 - 6, bw * 0.22, 4);
+        ctx.fillRect(bw * 0.1, bh / 2 - 6, bw * 0.22, 4);
       } else {
         ctx.fillStyle = "#FF6B6B";
-        ctx.fillRect(-10, 20, 7, 4);
-        ctx.fillRect(3, 20, 7, 4);
-        ctx.fillStyle = "#F1F2F4";
-        ctx.fillRect(-10, -26, 7, 3);
-        ctx.fillRect(3, -26, 7, 3);
+        ctx.fillRect(-bw * 0.3, bh / 2 - 6, bw * 0.2, 4);
+        ctx.fillRect(bw * 0.1, bh / 2 - 6, bw * 0.2, 4);
       }
       ctx.restore();
     };
 
-    const tick = () => {
+    const tick = (now: number) => {
+      const rawDt = Math.min(0.033, (now - last) / 1000);
+      last = now;
       const s = state.current;
+      const timeScale = s.slowmo > 0 ? 0.55 : 1;
+      const dt = rawDt * timeScale;
+
       const styles = getComputedStyle(document.documentElement);
       const ink = styles.getPropertyValue("--ink").trim() || "#0A0B0D";
       const porcelain = styles.getPropertyValue("--porcelain").trim() || "#E9EBEF";
@@ -267,50 +307,71 @@ export function CarGame({ open, onClose }: CarGameProps) {
       const road = isLight ? "#1a1d22" : "#121418";
       const asphaltLine = isLight ? "#3a4048" : "#2a2e36";
 
-      s.lane += (s.targetLane - s.lane) * 0.28;
-      s.shake = Math.max(0, s.shake - 0.08);
-      s.flash = Math.max(0, s.flash - 0.06);
-      s.invuln = Math.max(0, s.invuln - 0.016);
-      s.shield = Math.max(0, s.shield - 0.016);
+      s.time += dt;
+      s.pulse = (s.pulse + dt * (s.fever > 0 ? 8 : 3)) % (Math.PI * 2);
+      s.lane += (s.targetLane - s.lane) * (1 - Math.pow(0.001, dt * 60));
+      s.shake = Math.max(0, s.shake - dt * 3.2);
+      s.flash = Math.max(0, s.flash - dt * 2.4);
+      s.invuln = Math.max(0, s.invuln - dt);
+      s.shield = Math.max(0, s.shield - dt);
+      s.slowmo = Math.max(0, s.slowmo - dt);
+      s.fever = Math.max(0, s.fever - dt);
+      s.drift *= Math.pow(0.02, dt);
 
-      const boosting = s.nitroOn && s.nitro > 0 && startedRef.current && !s.crash;
-      if (boosting) {
-        s.nitro = Math.max(0, s.nitro - 0.45);
-      } else if (startedRef.current && !s.crash) {
-        s.nitro = Math.min(100, s.nitro + 0.12);
+      const fevering = s.fever > 0 || s.combo >= 6;
+      if (s.combo >= 6 && s.fever <= 0.2) s.fever = Math.max(s.fever, 0.01);
+      if (s.combo >= 6) s.fever = Math.max(s.fever, 2.5);
+
+      const boosting =
+        s.nitroOn && s.nitro > 0 && startedRef.current && !s.crash;
+      if (boosting) s.nitro = Math.max(0, s.nitro - 28 * dt);
+      else if (startedRef.current && !s.crash) {
+        s.nitro = Math.min(100, s.nitro + (fevering ? 14 : 7) * dt);
       }
 
       if (startedRef.current && !s.crash) {
-        const boostMul = boosting ? 1.7 : 1;
-        s.speed += 0.0009;
-        const move = s.speed * boostMul;
-        s.distance += move * 0.45;
-        s.score += move * 0.35 * s.mult;
-        s.roadOffset = (s.roadOffset + move * 2.1) % 40;
+        const boostMul = boosting ? 1.75 : 1;
+        const feverMul = fevering ? 1.15 : 1;
+        s.speed += 0.55 * dt;
+        const move = s.speed * boostMul * feverMul;
+        s.distance += move * 28 * dt;
+        s.mult = Math.min(10, 1 + Math.floor(s.combo / 2) + (fevering ? 2 : 0));
+        s.score += move * 22 * dt * s.mult;
+        s.roadOffset = (s.roadOffset + move * 130 * dt) % 40;
 
-        // trail
-        s.trail.unshift({ x: laneX(s.lane), y: s.y + 24 });
-        if (s.trail.length > 12) s.trail.pop();
+        s.trail.unshift({
+          x: laneX(s.lane),
+          y: s.y + 24,
+          w: 10 + Math.abs(s.drift) * 10,
+        });
+        if (s.trail.length > 16) s.trail.pop();
 
-        // exhaust particles when boosting
-        if (boosting && Math.random() > 0.3) {
-          s.particles.push({
-            x: laneX(s.lane) + (Math.random() - 0.5) * 10,
-            y: s.y + 28,
-            vx: (Math.random() - 0.5) * 1.2,
-            vy: 2 + Math.random() * 2,
-            life: 0.35,
-            color: accent,
-            size: 2 + Math.random() * 2,
-          });
+        if (boosting || fevering) {
+          for (let i = 0; i < (fevering ? 2 : 1); i++) {
+            s.particles.push({
+              x: laneX(s.lane) + (Math.random() - 0.5) * 14,
+              y: s.y + 28,
+              vx: (Math.random() - 0.5) * 1.4,
+              vy: 2 + Math.random() * 3,
+              life: 0.3 + Math.random() * 0.25,
+              color: fevering && Math.random() > 0.5 ? "#F1F2F4" : accent,
+              size: 2 + Math.random() * 2.5,
+            });
+          }
         }
 
-        s.spawn -= boostMul;
+        s.spawn -= dt * boostMul;
         if (s.spawn <= 0) {
-          const pattern = Math.random();
           const colors = ["#8B909A", "#5C6370", "#C8CCD4", "#2AE0B0", "#F07167"];
-          if (pattern > 0.72) {
-            // two-car block with a gap
+          const roll = Math.random();
+          if (roll > 0.88 && s.distance > 200) {
+            s.obstacles.push({
+              lane: Math.random() > 0.5 ? 0 : 1,
+              y: -70,
+              color: "#4A5160",
+              wide: true,
+            });
+          } else if (roll > 0.68) {
             const blocked = Math.random() > 0.5 ? [0, 1] : [1, 2];
             for (const lane of blocked) {
               s.obstacles.push({
@@ -326,120 +387,149 @@ export function CarGame({ open, onClose }: CarGameProps) {
               color: colors[Math.floor(Math.random() * colors.length)],
             });
           }
-          s.spawn = Math.max(22, 62 - s.speed * 3.2) + Math.random() * 16;
+          s.spawn = Math.max(0.32, 0.85 - s.speed * 0.01) + Math.random() * 0.28;
         }
 
-        s.pickupSpawn -= 1;
+        s.pickupSpawn -= dt;
         if (s.pickupSpawn <= 0) {
           const roll = Math.random();
           const kind: Pickup["kind"] =
-            roll > 0.86 ? "shield" : roll > 0.72 ? "nitro" : "orb";
+            roll > 0.9
+              ? "slow"
+              : roll > 0.78
+                ? "shield"
+                : roll > 0.62
+                  ? "nitro"
+                  : "orb";
           s.pickups.push({
             lane: Math.floor(Math.random() * LANES),
             y: -40,
             kind,
           });
-          s.pickupSpawn = 70 + Math.random() * 50;
+          s.pickupSpawn = 0.9 + Math.random() * 0.8;
         }
 
-        for (const o of s.obstacles) o.y += move * 1.55;
-        for (const p of s.pickups) p.y += move * 1.55;
+        const fall = move * 95 * dt;
+        for (const o of s.obstacles) o.y += fall;
+        for (const p of s.pickups) p.y += fall;
 
-        // near-miss / pass scoring
         const px = laneX(s.lane);
         const py = s.y;
+
         for (const o of s.obstacles) {
           if (o.scored) continue;
-          const ox = laneX(o.lane);
-          if (o.y > py + 30) {
+          if (o.y > py + 32) {
             o.scored = true;
-            const close = Math.abs(o.lane - s.lane) === 1 && Math.abs(ox - px) < 95;
-            if (close) {
+            const lanesHit = o.wide ? [o.lane, o.lane + 1] : [o.lane];
+            const adjacent = lanesHit.some((l) => Math.abs(l - s.lane) === 1);
+            const same = lanesHit.includes(Math.round(s.lane));
+            if (adjacent && !same) {
               s.combo += 1;
-              s.mult = Math.min(8, 1 + Math.floor(s.combo / 2));
-              const pts = 25 * s.mult;
+              s.maxCombo = Math.max(s.maxCombo, s.combo);
+              s.nearMisses += 1;
+              s.mult = Math.min(10, 1 + Math.floor(s.combo / 2) + (fevering ? 2 : 0));
+              const pts = 30 * s.mult;
               s.score += pts;
-              s.flash = 0.45;
-              float(px, py - 40, `NEAR +${pts}`, accent);
-              burst(ox, o.y, accent, 8);
+              s.flash = 0.5;
+              float(px, py - 42, `NEAR +${pts}`, accent);
+              burst(laneX(o.lane), o.y, accent, 10);
+              vibe(8);
               setCombo(s.combo);
+              if (s.combo === 6) {
+                float(px, py - 64, "FEVER", "#F1F2F4");
+                burst(px, py, "#F1F2F4", 20);
+              }
             } else {
               s.combo = Math.max(0, s.combo - 1);
-              s.mult = Math.min(8, 1 + Math.floor(s.combo / 2));
               setCombo(s.combo);
             }
           }
         }
 
-        // collisions
-        for (const o of s.obstacles) {
-          const ox = laneX(o.lane);
-          if (Math.abs(ox - px) < 28 && Math.abs(o.y - py) < 48) {
-            if (s.invuln > 0 || s.shield > 0) {
-              s.shield = 0;
-              s.invuln = 0.8;
-              o.y = H + 100;
-              burst(px, py, accent, 18);
-              float(px, py - 30, "BLOCKED", accent);
-              s.shake = 0.5;
-            } else {
-              s.crash = true;
-              s.shake = 1.4;
-              burst(px, py, "#F07167", 28);
-              burst(px, py, accent, 12);
-              const finalScore = Math.floor(s.score);
-              setScore(finalScore);
-              setCombo(0);
-              aliveRef.current = false;
-              setAlive(false);
-              setBest((b) => {
-                const next = Math.max(b, finalScore);
-                window.localStorage.setItem("sp-garage-best", String(next));
-                return next;
-              });
-            }
-            break;
+        const hitsObstacle = (o: Obstacle) => {
+          if (o.wide) {
+            const left = laneX(o.lane) - 20;
+            const right = laneX(o.lane + 1) + 20;
+            return px > left && px < right && Math.abs(o.y - py) < 50;
           }
+          return Math.abs(laneX(o.lane) - px) < 28 && Math.abs(o.y - py) < 48;
+        };
+
+        for (const o of s.obstacles) {
+          if (!hitsObstacle(o)) continue;
+          if (s.invuln > 0 || s.shield > 0) {
+            s.shield = 0;
+            s.invuln = 0.85;
+            o.y = H + 120;
+            burst(px, py, accent, 20);
+            float(px, py - 30, "BLOCKED", accent);
+            s.shake = 0.55;
+            vibe(18);
+          } else {
+            s.crash = true;
+            s.shake = 1.5;
+            burst(px, py, "#F07167", 30);
+            burst(px, py, accent, 14);
+            const finalScore = Math.floor(s.score);
+            setScore(finalScore);
+            setRank(rankFor(finalScore));
+            setCombo(0);
+            aliveRef.current = false;
+            setAlive(false);
+            setBest((b) => {
+              const next = Math.max(b, finalScore);
+              window.localStorage.setItem("sp-garage-best", String(next));
+              return next;
+            });
+            vibe(40);
+          }
+          break;
         }
 
-        // pickups
         s.pickups = s.pickups.filter((p) => {
           const x = laneX(p.lane);
           if (Math.abs(x - px) < 26 && Math.abs(p.y - py) < 36) {
             if (p.kind === "orb") {
-              const pts = 40 * s.mult;
+              const pts = 50 * s.mult;
               s.score += pts;
+              s.orbs += 1;
               float(px, py - 36, `+${pts}`, accent);
-              burst(x, p.y, accent, 10);
-            } else if (p.kind === "shield") {
-              s.shield = 4.5;
-              float(px, py - 36, "SHIELD", accent);
               burst(x, p.y, accent, 12);
+            } else if (p.kind === "shield") {
+              s.shield = 5;
+              float(px, py - 36, "SHIELD", accent);
+              burst(x, p.y, accent, 14);
+            } else if (p.kind === "nitro") {
+              s.nitro = Math.min(100, s.nitro + 50);
+              float(px, py - 36, "NITRO", "#F1F2F4");
+              burst(x, p.y, "#F1F2F4", 14);
             } else {
-              s.nitro = Math.min(100, s.nitro + 45);
-              float(px, py - 36, "NITRO", accent);
-              burst(x, p.y, "#F1F2F4", 12);
+              s.slowmo = 3.2;
+              float(px, py - 36, "SLOW-MO", accent);
+              burst(x, p.y, accent, 16);
             }
+            vibe(10);
             return false;
           }
           return p.y < H + 60;
         });
 
-        s.obstacles = s.obstacles.filter((o) => o.y < H + 80);
-
-        if (!s.crash) setScore(Math.floor(s.score));
+        s.obstacles = s.obstacles.filter((o) => o.y < H + 90);
+        if (!s.crash) {
+          setScore(Math.floor(s.score));
+          setRank(rankFor(s.score));
+        }
       }
 
-      // particles / floaters update
       for (const p of s.particles) {
         p.x += p.vx;
         p.y += p.vy;
-        p.life -= 0.02;
+        p.life -= dt * 1.8;
       }
       s.particles = s.particles.filter((p) => p.life > 0);
       for (const f of s.floaters) {
-        f.y -= 0.7;
-        f.life -= 0.02;
+        f.y -= 42 * dt;
+        f.life -= dt * 1.1;
       }
       s.floaters = s.floaters.filter((f) => f.life > 0);
 
@@ -447,8 +537,8 @@ export function CarGame({ open, onClose }: CarGameProps) {
       ctx.save();
       if (s.shake > 0) {
         ctx.translate(
-          (Math.random() - 0.5) * s.shake * 10,
-          (Math.random() - 0.5) * s.shake * 10,
+          (Math.random() - 0.5) * s.shake * 12,
+          (Math.random() - 0.5) * s.shake * 12,
         );
       }
 
@@ -456,30 +546,34 @@ export function CarGame({ open, onClose }: CarGameProps) {
       ctx.fillStyle = ink;
       ctx.fillRect(0, 0, W, H);
 
-      // roadside
       ctx.fillStyle = isLight ? porcelain : "#0d0f12";
       ctx.fillRect(0, 0, 40, H);
       ctx.fillRect(W - 40, 0, 40, H);
 
-      // speed lines
+      // fever backdrop pulse
+      if (fevering && startedRef.current) {
+        ctx.fillStyle = `rgba(61,255,200,${0.04 + Math.sin(s.pulse) * 0.03})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+
       if (startedRef.current && !s.crash) {
-        ctx.strokeStyle = "rgba(61,255,200,0.08)";
+        ctx.strokeStyle = fevering
+          ? "rgba(61,255,200,0.16)"
+          : "rgba(61,255,200,0.08)";
         ctx.lineWidth = 1;
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 12; i++) {
           const x = 50 + ((i * 37 + s.roadOffset * 3) % (W - 100));
           const y = ((i * 73 + s.roadOffset * 8) % H) - 20;
           ctx.beginPath();
           ctx.moveTo(x, y);
-          ctx.lineTo(x, y + 18 + s.speed * 2);
+          ctx.lineTo(x, y + 16 + s.speed);
           ctx.stroke();
         }
       }
 
-      // road
       ctx.fillStyle = road;
       ctx.fillRect(40, 0, W - 80, H);
 
-      // lane dashes
       ctx.strokeStyle = asphaltLine;
       ctx.lineWidth = 3;
       ctx.setLineDash([18, 22]);
@@ -493,10 +587,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
       }
       ctx.setLineDash([]);
 
-      // neon edges
       ctx.strokeStyle = accent;
-      ctx.globalAlpha = 0.4 + (boosting ? 0.25 : 0);
-      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.35 + (boosting ? 0.3 : 0) + Math.sin(s.pulse) * 0.08;
+      ctx.lineWidth = fevering ? 3 : 2;
       ctx.beginPath();
       ctx.moveTo(44, 0);
       ctx.lineTo(44, H);
@@ -505,28 +598,26 @@ export function CarGame({ open, onClose }: CarGameProps) {
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // player trail
       if (startedRef.current) {
         for (let i = 0; i < s.trail.length; i++) {
           const t = s.trail[i];
-          ctx.globalAlpha = 0.15 * (1 - i / s.trail.length);
+          ctx.globalAlpha = 0.18 * (1 - i / s.trail.length);
           ctx.fillStyle = accent;
           ctx.beginPath();
-          ctx.roundRect(t.x - 8, t.y - 4, 16, 10, 3);
+          ctx.roundRect(t.x - t.w / 2, t.y - 4, t.w, 10, 3);
           ctx.fill();
         }
         ctx.globalAlpha = 1;
       }
 
-      // pickups
       for (const p of s.pickups) {
         const x = laneX(p.lane);
         ctx.save();
-        ctx.translate(x, p.y);
+        ctx.translate(x, p.y + Math.sin(s.time * 6 + p.lane) * 2);
         if (p.kind === "orb") {
           ctx.fillStyle = accent;
           ctx.shadowColor = accent;
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 14;
           ctx.beginPath();
           ctx.arc(0, 0, 7, 0, Math.PI * 2);
           ctx.fill();
@@ -537,7 +628,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
           ctx.strokeRect(-9, -9, 18, 18);
           ctx.fillStyle = "rgba(61,255,200,0.2)";
           ctx.fillRect(-9, -9, 18, 18);
-        } else {
+        } else if (p.kind === "nitro") {
           ctx.fillStyle = "#F1F2F4";
           ctx.beginPath();
           ctx.moveTo(0, -10);
@@ -545,16 +636,31 @@ export function CarGame({ open, onClose }: CarGameProps) {
           ctx.lineTo(-8, 8);
           ctx.closePath();
           ctx.fill();
+        } else {
+          ctx.strokeStyle = accent;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, 9, 0.2, Math.PI * 1.6);
+          ctx.stroke();
+          ctx.fillStyle = accent;
+          ctx.font = "700 9px ui-monospace, monospace";
+          ctx.textAlign = "center";
+          ctx.fillText("S", 0, 3);
         }
         ctx.restore();
       }
 
       for (const o of s.obstacles) {
-        drawCar(laneX(o.lane), o.y, o.color);
+        const x = o.wide ? (laneX(o.lane) + laneX(o.lane + 1)) / 2 : laneX(o.lane);
+        drawCar(x, o.y, o.color, { wide: o.wide });
       }
-      drawCar(laneX(s.lane), s.y, accent, true, s.shield > 0);
 
-      // particles
+      drawCar(laneX(s.lane), s.y, accent, {
+        player: true,
+        shield: s.shield > 0,
+        tilt: s.drift * 0.18,
+      });
+
       for (const p of s.particles) {
         ctx.globalAlpha = Math.max(0, p.life);
         ctx.fillStyle = p.color;
@@ -562,7 +668,6 @@ export function CarGame({ open, onClose }: CarGameProps) {
       }
       ctx.globalAlpha = 1;
 
-      // floaters
       for (const f of s.floaters) {
         ctx.globalAlpha = Math.max(0, f.life);
         ctx.fillStyle = f.color;
@@ -573,21 +678,32 @@ export function CarGame({ open, onClose }: CarGameProps) {
       ctx.globalAlpha = 1;
 
       if (s.flash > 0) {
-        ctx.fillStyle = `rgba(61,255,200,${s.flash * 0.12})`;
+        ctx.fillStyle = `rgba(61,255,200,${s.flash * 0.14})`;
         ctx.fillRect(0, 0, W, H);
       }
-
+      if (s.slowmo > 0) {
+        ctx.fillStyle = "rgba(10,11,13,0.12)";
+        ctx.fillRect(0, 0, W, H);
+      }
       if (s.crash) {
         ctx.fillStyle = "rgba(10,11,13,0.5)";
         ctx.fillRect(0, 0, W, H);
       }
 
-      // nitro bar
       if (startedRef.current) {
         ctx.fillStyle = "rgba(241,242,244,0.12)";
         ctx.fillRect(54, H - 18, W - 108, 6);
         ctx.fillStyle = boosting ? accent : "rgba(61,255,200,0.55)";
         ctx.fillRect(54, H - 18, ((W - 108) * s.nitro) / 100, 6);
+
+        if (fevering) {
+          ctx.fillStyle = accent;
+          ctx.font = "700 10px ui-monospace, monospace";
+          ctx.textAlign = "center";
+          ctx.globalAlpha = 0.7 + Math.sin(s.pulse) * 0.3;
+          ctx.fillText("FEVER", W / 2, 28);
+          ctx.globalAlpha = 1;
+        }
       }
 
       ctx.restore();
@@ -607,10 +723,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
       resetRun();
       return;
     }
-    state.current.targetLane = Math.max(
-      0,
-      Math.min(LANES - 1, state.current.targetLane + dir),
-    );
+    const next = Math.max(0, Math.min(LANES - 1, state.current.targetLane + dir));
+    if (next !== state.current.targetLane) state.current.drift = dir < 0 ? 1 : -1;
+    state.current.targetLane = next;
   }
 
   return (
@@ -637,7 +752,7 @@ export function CarGame({ open, onClose }: CarGameProps) {
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <div>
                 <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                  Secret · Garage
+                  Secret · Garage · Arcade
                 </p>
                 <p className="font-display text-lg font-bold tracking-tight">
                   Midnight Circuit
@@ -665,7 +780,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
                   {score}
                 </span>
                 <span className="border border-accent/40 bg-bg/70 px-2 py-1 text-accent backdrop-blur-sm">
-                  {combo > 0 ? `${combo}x near · x${Math.min(8, 1 + Math.floor(combo / 2))}` : "combo"}
+                  {combo > 0
+                    ? `${combo} near · x${Math.min(10, 1 + Math.floor(combo / 2))}`
+                    : rank}
                 </span>
                 <span className="border border-line/70 bg-bg/70 px-2 py-1 backdrop-blur-sm">
                   Best {best}
@@ -676,12 +793,12 @@ export function CarGame({ open, onClose }: CarGameProps) {
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4">
                   <div className="border border-accent/50 bg-bg/85 px-4 py-3 text-center backdrop-blur-sm">
                     <p className="font-display text-xl font-bold tracking-tight">
-                      Dodge. Boost. Style.
+                      Style on the night lane.
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase leading-relaxed tracking-[0.16em] text-muted">
-                      A D lanes · hold Space nitro
+                      Near-misses → fever · Space nitro
                       <br />
-                      Near-misses build combo · grab orbs
+                      Grab slow-mo / shield · dodge trucks
                     </p>
                     <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-accent">
                       Space to launch
@@ -695,6 +812,9 @@ export function CarGame({ open, onClose }: CarGameProps) {
                   <div className="border border-line bg-bg/90 px-4 py-3 text-center backdrop-blur-sm">
                     <p className="font-display text-xl font-bold tracking-tight">
                       Wrecked
+                    </p>
+                    <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
+                      {rank}
                     </p>
                     <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
                       {score} pts · R / Space retry
