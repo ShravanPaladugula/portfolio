@@ -52,11 +52,22 @@ a lead image.
 
 ## Résumé
 
-`public/resume.pdf` is generated from `resume/resume.html`:
+The site serves whatever sits at `public/resume.pdf`. To update it, overwrite
+that file — nothing else needs to change. The nav button, hero button, and
+contact row all point at `/resume.pdf`.
+
+Keep it to one page and name it `resume.pdf` exactly; the path is hard-coded in
+`src/content/profile.ts` under `links.resume`.
+
+### Fallback generator
+
+`resume/` holds a typeset HTML résumé and a script that prints it to PDF. It is
+a fallback, not the source of truth — if you maintain your résumé elsewhere,
+ignore it or delete the folder.
 
 ```bash
 npm install --no-save playwright-core   # once; needs Chrome installed
-node resume/build.mjs
+node resume/build.mjs                   # overwrites public/resume.pdf
 ```
 
 The script fails loudly if the output spills past one page.
