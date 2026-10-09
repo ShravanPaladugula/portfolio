@@ -14,9 +14,9 @@ export default function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#0A0B0D",
-          color: "#F1F2F4",
-          padding: "64px",
+          background: "#FBFBF9",
+          color: "#141416",
+          padding: 72,
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
       >
@@ -26,47 +26,57 @@ export default function OpenGraphImage() {
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
-            fontSize: 22,
-            letterSpacing: "0.24em",
+            fontSize: 20,
+            letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#3DFFC8",
+            color: "#6B6B73",
           }}
         >
-          <span>SP</span>
-          <span style={{ color: "#8B909A" }}>UC San Diego CE</span>
+          <span>Shravan Paladugula</span>
+          <span>UC San Diego · Computer Engineering</span>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 18,
-          }}
-        >
+
+        <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              fontSize: 84,
-              fontWeight: 800,
-              lineHeight: 0.92,
-              letterSpacing: "-0.04em",
+              fontSize: 82,
+              lineHeight: 1.02,
+              letterSpacing: "-0.03em",
+              maxWidth: 900,
             }}
           >
-            <span>SHRAVAN</span>
-            <span>PALADUGULA</span>
-          </div>
-          <div style={{ display: "flex", fontSize: 28, color: "#8B909A" }}>
             I build systems that leave the screen.
           </div>
+          <div
+            style={{
+              marginTop: 26,
+              fontSize: 26,
+              color: "#6B6B73",
+              maxWidth: 840,
+            }}
+          >
+            Embedded systems, firmware, power, and the hardware layer of team
+            builds.
+          </div>
         </div>
+
         <div
           style={{
             display: "flex",
-            height: 3,
-            width: 220,
-            background: "#3DFFC8",
+            alignItems: "center",
+            gap: 20,
+            borderTop: "1px solid #E3E3DD",
+            paddingTop: 26,
+            fontSize: 22,
+            color: "#6B6B73",
           }}
-        />
+        >
+          <span style={{ color: "#B4471F" }}>15 hackathons</span>
+          <span>·</span>
+          <span style={{ color: "#B4471F" }}>9 winning projects</span>
+          <span>·</span>
+          <span>MountainHacks president</span>
+        </div>
       </div>
     ),
     { ...size },

@@ -1,42 +1,25 @@
 import { About } from "@/components/About";
-import { Awards } from "@/components/Awards";
 import { Contact } from "@/components/Contact";
 import { Education } from "@/components/Education";
-import { Gallery } from "@/components/Gallery";
+import { Experience } from "@/components/Experience";
 import { Hero } from "@/components/Hero";
 import { Nav } from "@/components/Nav";
-import { Path } from "@/components/Path";
-import { ScrollProgress } from "@/components/ScrollProgress";
-import { ColorSeam } from "@/components/SectionLabel";
-import { SignalMarquee } from "@/components/SignalMarquee";
-import { SiteChrome } from "@/components/SiteChrome";
-import { Systems } from "@/components/Systems";
+import { Toolbox } from "@/components/Toolbox";
 import { Work } from "@/components/Work";
 
 export default function Home() {
   return (
-    <SiteChrome>
-      <ScrollProgress />
+    <>
       <Nav />
-      <main className="relative z-10 flex-1">
+      <main>
         <Hero />
-        <SignalMarquee />
-        <About />
-        <ColorSeam />
         <Work />
-        <ColorSeam />
-        <Systems />
-        <ColorSeam />
-        <Path />
-        <ColorSeam />
-        <Awards />
-        <ColorSeam />
-        <Gallery />
-        <ColorSeam />
+        <About />
+        <Experience />
+        <Toolbox />
         <Education />
-        <ColorSeam />
         <Contact />
       </main>
-    </SiteChrome>
+    </>
   );
 }

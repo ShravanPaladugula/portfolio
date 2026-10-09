@@ -1,53 +1,47 @@
 @import "tailwindcss";
 
 /*
-  Palette: Ink / Porcelain / Signal
-  One accent only. Light bands = porcelain, dark bands = ink.
+  Paper / Ink / Rust.
+  Light by default, dark via prefers-color-scheme. One accent, used sparingly.
 */
 :root {
-  --ink: #0a0b0d;
-  --porcelain: #e9ebef;
-  --bg: var(--ink);
-  --fg: #f1f2f4;
-  --muted: #8b909a;
-  --line: #24272d;
-  --invert: var(--porcelain);
-  --invert-fg: var(--ink);
-  --invert-muted: #5c6370;
-  --invert-line: #c8ccd4;
-  --accent: #3dffc8;
-  --accent-strong: #2ae0b0;
-  --selection-fg: #0a0b0d;
-  --grain-opacity: 0.035;
-  --content-max: 1500px;
+  --bg: #fbfbf9;
+  --bg-sunk: #f4f4f0;
+  --fg: #141416;
+  --muted: #6b6b73;
+  --line: #e3e3dd;
+  --line-strong: #cfcfc7;
+  --accent: #b4471f;
+  --selection-bg: #141416;
+  --selection-fg: #fbfbf9;
+  --content: 1120px;
 }
 
-html.light {
-  --bg: var(--porcelain);
-  --fg: var(--ink);
-  --muted: #5c6370;
-  --line: #c8ccd4;
-  --invert: var(--ink);
-  --invert-fg: #f1f2f4;
-  --invert-muted: #8b909a;
-  --invert-line: #24272d;
-  --accent: #0d9f78;
-  --accent-strong: #0b8a68;
-  --selection-fg: #e9ebef;
-  --grain-opacity: 0.02;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d0d0f;
+    --bg-sunk: #141417;
+    --fg: #ececea;
+    --muted: #9a9aa2;
+    --line: #26262b;
+    --line-strong: #3a3a41;
+    --accent: #e3835c;
+    --selection-bg: #ececea;
+    --selection-fg: #0d0d0f;
+  }
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-sunk: var(--bg-sunk);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-invert: var(--invert);
-  --color-invert-fg: var(--invert-fg);
+  --color-line-strong: var(--line-strong);
   --color-accent: var(--accent);
-  --font-display: var(--font-syne);
-  --font-sans: var(--font-space);
-  --font-mono: var(--font-jetbrains);
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
 }
 
 * {
@@ -55,214 +49,97 @@ html.light {
 }
 
 html {
+  color-scheme: light dark;
   scroll-behavior: smooth;
-  color-scheme: dark;
-}
-
-html.light {
-  color-scheme: light;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-space), system-ui, sans-serif;
-  min-height: 100%;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
-  transition: background-color 0.35s ease, color 0.35s ease;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--selection-bg);
   color: var(--selection-fg);
 }
 
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+  border-radius: 2px;
 }
 
-.font-display {
-  font-family: var(--font-syne), system-ui, sans-serif;
+.font-serif {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
 }
 
 .font-mono {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-family: var(--font-code), ui-monospace, SFMono-Regular, monospace;
 }
 
-.grain::before {
-  content: "";
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  opacity: var(--grain-opacity);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-}
+/* Shared layout rhythm ------------------------------------------- */
 
-.tech-grid {
-  background-image:
-    linear-gradient(to right, var(--line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(ellipse at center, black 25%, transparent 75%);
-}
-
-.hero-signal {
-  background:
-    radial-gradient(ellipse 55% 45% at 78% 42%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 70%),
-    radial-gradient(ellipse 40% 35% at 18% 78%, color-mix(in oklab, var(--accent) 10%, transparent), transparent 65%);
-}
-
-.hero-scanlines {
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 3px,
-    color-mix(in oklab, var(--fg) 35%, transparent) 3px,
-    color-mix(in oklab, var(--fg) 35%, transparent) 4px
-  );
-  mix-blend-mode: overlay;
-}
-
-.signal-dot {
-  width: 0.28em;
-  height: 0.28em;
-  border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 55%, transparent);
-  animation: signal-pulse 2.4s ease-out infinite;
-}
-
-.signal-scan {
-  animation: signal-scan 2.8s ease-in-out infinite;
-}
-
-.scroll-pip {
-  animation: scroll-pip 1.6s ease-in-out infinite;
-}
-
-.seam-pulse {
-  animation: seam-drift 7s ease-in-out infinite;
-}
-
-.marquee-track {
-  animation: marquee 32s linear infinite;
-}
-
-@keyframes signal-pulse {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 45%, transparent);
-  }
-  70% {
-    box-shadow: 0 0 0 12px transparent;
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-@keyframes signal-scan {
-  0% {
-    transform: translateX(-10%);
-  }
-  50% {
-    transform: translateX(180%);
-  }
-  100% {
-    transform: translateX(-10%);
-  }
-}
-
-@keyframes scroll-pip {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(220%);
-    opacity: 0;
-  }
-}
-
-@keyframes seam-drift {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(140%);
-  }
-}
-
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.section-pad {
-  padding-inline: clamp(1.25rem, 4vw, 4rem);
-  padding-block: clamp(4.5rem, 12vw, 8rem);
-}
-
-.content-wrap {
+.wrap {
   margin-inline: auto;
-  max-width: var(--content-max);
+  width: 100%;
+  max-width: var(--content);
+  padding-inline: clamp(1.25rem, 5vw, 2.5rem);
 }
 
-.band-invert {
-  background: var(--invert);
-  color: var(--invert-fg);
-  transition: background-color 0.35s ease, color 0.35s ease;
+.section {
+  padding-block: clamp(3.5rem, 9vw, 6.5rem);
 }
 
-.band-invert .text-muted {
-  color: var(--invert-muted);
+/* Small uppercase metadata label */
+.eyebrow {
+  font-family: var(--font-code), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.band-invert .border-line {
-  border-color: var(--invert-line);
+/* Section heading rule */
+.rule {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 0.875rem;
+  margin-bottom: clamp(2rem, 5vw, 3rem);
 }
 
-.band-invert .bg-line {
-  background: var(--invert-line);
+/* Link underline that grows on hover */
+.ul {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: var(--line-strong);
+  transition: text-decoration-color 0.18s ease, color 0.18s ease;
 }
 
-.band-invert ::selection {
-  background: var(--accent);
-  color: var(--selection-fg);
-}
-
-.text-accent {
+.ul:hover {
+  text-decoration-color: var(--accent);
   color: var(--accent);
 }
 
-.bg-accent {
-  background: var(--accent);
-}
-
-.border-accent {
-  border-color: var(--accent);
-}
-
-html.has-custom-cursor,
-html.has-custom-cursor * {
-  cursor: none !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.has-custom-cursor,
-  html.has-custom-cursor * {
-    cursor: auto !important;
-  }
+/* Tag pill */
+.tag {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-code), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -274,15 +151,6 @@ html.has-custom-cursor * {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .marquee-track,
-  .signal-scan,
-  .scroll-pip,
-  .seam-pulse,
-  .signal-dot {
-    animation: none !important;
   }
 }

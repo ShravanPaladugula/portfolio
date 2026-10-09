@@ -1,62 +1,54 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk, Syne } from "next/font/google";
+import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
+import { profile } from "@/content/profile";
 import "./globals.css";
 
-const syne = Syne({
-  variable: "--font-syne",
+const display = Instrument_Serif({
+  variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
+  weight: ["400"],
+  display: "swap",
 });
 
-const space = Space_Grotesk({
-  variable: "--font-space",
+const body = Inter({
+  variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
+const code = JetBrains_Mono({
+  variable: "--font-code",
   subsets: ["latin"],
   weight: ["400", "500"],
+  display: "swap",
 });
+
+const description =
+  "First-year computer engineering student at UC San Diego. Embedded systems, firmware, power, and the hardware layer of team builds — 15 hackathons, 9 winning projects.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://portfolio-phi-eight-tl7b5ws2l1.vercel.app"),
-  title: "Shravan Paladugula | Computer Engineering",
-  description:
-    "Incoming Computer Engineering student at UC San Diego. Embedded systems, firmware, edge AI, and fabrication pipelines.",
+  title: `${profile.name} — Computer Engineering`,
+  description,
   openGraph: {
-    title: "Shravan Paladugula | Computer Engineering",
-    description:
-      "I build systems that leave the screen — embedded, edge AI, and full-stack fabrication.",
+    title: `${profile.name} — Computer Engineering`,
+    description,
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${profile.name} — Computer Engineering`,
+    description,
+  },
 };
-
-const themeInit = `
-(() => {
-  try {
-    const t = localStorage.getItem('sp-theme');
-    if (t === 'day') document.documentElement.classList.add('light');
-    document.documentElement.dataset.theme = t === 'day' ? 'day' : 'night';
-  } catch {}
-})();
-`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${space.variable} ${jetbrains.variable} h-full antialiased`}
-      data-theme="night"
-      suppressHydrationWarning
+      className={`${display.variable} ${body.variable} ${code.variable} antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
-      </head>
-      <body className="grain relative z-0 min-h-full flex flex-col bg-bg text-fg">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

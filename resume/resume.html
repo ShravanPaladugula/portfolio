@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shravan Paladugula — Résumé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page { size: Letter; margin: 0; }
+
+  :root {
+    --ink: #141416;
+    --muted: #5a5a62;
+    --line: #d4d4cd;
+    --accent: #b4471f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.1pt;
+    line-height: 1.38;
+    color: var(--ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Header ------------------------------------------------------- */
+  h1 {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 27pt;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1;
+  }
+
+  .role {
+    margin-top: 3pt;
+    font-size: 9.6pt;
+    color: var(--muted);
+  }
+
+  .contact {
+    margin-top: 5pt;
+    font-size: 8.5pt;
+    color: var(--muted);
+  }
+  .contact a { color: var(--muted); text-decoration: none; }
+  .contact span.sep { color: var(--line); margin: 0 5pt; }
+
+  header { border-bottom: 1.2pt solid var(--ink); padding-bottom: 8pt; }
+
+  /* Sections ----------------------------------------------------- */
+  section { margin-top: 8pt; }
+
+  h2 {
+    font-size: 7.4pt;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 0.6pt solid var(--line);
+    padding-bottom: 2.5pt;
+    margin-bottom: 5pt;
+  }
+
+  .item { margin-bottom: 4.4pt; }
+  .item:last-child { margin-bottom: 0; }
+
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10pt;
+  }
+
+  .title { font-weight: 600; font-size: 9.6pt; }
+  .org { font-weight: 400; color: var(--ink); }
+  .when { font-size: 8.2pt; color: var(--muted); white-space: nowrap; }
+
+  .meta {
+    font-size: 8.2pt;
+    color: var(--muted);
+    margin-top: 0.5pt;
+  }
+  .award { color: var(--accent); font-weight: 500; }
+
+  ul { list-style: none; margin-top: 2pt; }
+  li {
+    position: relative;
+    padding-left: 9pt;
+    margin-top: 1.5pt;
+  }
+  li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.52em;
+    width: 4.5pt;
+    height: 0.6pt;
+    background: #9a9aa2;
+  }
+
+  .skills { display: grid; grid-template-columns: 74pt 1fr; gap: 2.5pt 9pt; }
+  .skills dt { font-size: 8.2pt; color: var(--muted); }
+  .skills dd { font-size: 8.7pt; }
+
+  .awards { font-size: 8.7pt; }
+  .awards b { font-weight: 600; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Shravan Paladugula</h1>
+  <p class="role">Computer Engineering &middot; University of California, San Diego</p>
+  <p class="contact">
+    <a href="mailto:shravan.paladugula@gmail.com">shravan.paladugula@gmail.com</a><span class="sep">|</span>(925)&nbsp;493-9513<span class="sep">|</span>La&nbsp;Jolla,&nbsp;CA<span class="sep">|</span><a href="https://github.com/ShravanPaladugula">github.com/ShravanPaladugula</a><span class="sep">|</span><a href="https://www.linkedin.com/in/shravan-paladugula">linkedin.com/in/shravan-paladugula</a><span class="sep">|</span><a href="https://devpost.com/ShravanPaladugula">devpost.com/ShravanPaladugula</a>
+  </p>
+</header>
+
+<section>
+  <h2>Education</h2>
+  <div class="item">
+    <div class="head">
+      <span class="title">University of California, San Diego <span class="org">— B.S. Computer Engineering, Jacobs School of Engineering</span></span>
+      <span class="when">2026 – 2030 (expected)</span>
+    </div>
+  </div>
+  <div class="item">
+    <div class="head">
+      <span class="title">Mountain House High School</span>
+      <span class="when">Graduated 2026</span>
+    </div>
+    <p class="meta">GPA 4.64 &middot; ranked 6 of 615 &middot; Distinguished Award (top 2%) &middot; AP Scholar with Distinction</p>
+  </div>
+</section>
+
+<section>
+  <h2>Experience</h2>
+  <div class="item">
+    <div class="head">
+      <span class="title">Founder &amp; Engineer <span class="org">— Central Valley Printing Company</span></span>
+      <span class="when">2022 – 2025</span>
+    </div>
+    <ul>
+      <li>Ran a production 3D printing studio to $3,000+ in revenue, owning the full CAD-to-delivery pipeline.</li>
+      <li>Engineered 20+ custom parts for 50+ students competing nationally in FTC, DECA, TSA, and SkillsUSA.</li>
+      <li>Built and shipped the storefront in TypeScript, React, Vite, Tailwind, and Supabase — live quoting and automated order tracking across 22 production deployments.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Selected Projects</h2>
+
+  <div class="item">
+    <div class="head">
+      <span class="title">Rosetta MD <span class="org">— handheld clinical-speech translator</span></span>
+      <span class="when">2026</span>
+    </div>
+    <p class="meta"><span class="award">Best Hardware Hack, CruzHacks 2026</span> (278 competitors) &middot; team of 4 &middot; ESP32, MEMS mic, LiPo, OLED, RFID, FastAPI, React</p>
+    <ul>
+      <li>Owned the hardware: 3.7V LiPo with charge and over-discharge protection, printed enclosure, OLED device UI, and RFID patient check-in.</li>
+      <li>Kept power, audio, display, and the AI pipeline coordinated inside one handheld shell, built in 36 hours.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="head">
+      <span class="title">CONJR <span class="org">— voice-to-fabrication pipeline</span></span>
+      <span class="when">2026</span>
+    </div>
+    <p class="meta"><span class="award">You.com Best Project, WizardHacks 2026</span> &middot; Python, FastAPI, OpenSCAD, CuraEngine, Moonraker, Orange Pi 5 Pro, Three.js</p>
+    <ul>
+      <li>Built an end-to-end pipeline turning a spoken part request into parametric OpenSCAD, then STL, slice, and gcode on a live printer.</li>
+      <li>Added a structural-integrity agent that grades every design OK / WARN / FAIL and blocks unsafe geometry from reaching the machine.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="head">
+      <span class="title">PillWatch <span class="org">— authenticated medication dispenser</span></span>
+      <span class="when">2025</span>
+    </div>
+    <p class="meta"><span class="award">Best Hardware Hack, CruzHacks 2025</span> (225 competitors) &middot; team of 4 &middot; Raspberry Pi, ESP32, servos, 3D printing</p>
+    <ul>
+      <li>Designed the dispensing mechanism — custom pinwheel geometry and dual-servo timing tuned to release exactly one dose per rotation.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="head">
+      <span class="title">CHEHRA <span class="org">— face-recognition classroom check-in</span></span>
+      <span class="when">2024 – present</span>
+    </div>
+    <p class="meta">Team of 4 &middot; Python, OpenCV, FastAPI, Raspberry Pi, Arduino, servos, ultrasonic</p>
+    <ul>
+      <li>Owned hardware integration: servo camera mount that adjusts to student height, ultrasonic approach detection, and the serial layer driving LCD, LED, and buzzer feedback.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <div class="head">
+      <span class="title">UAS-SAR <span class="org">— synthetic-aperture radar drone</span></span>
+      <span class="when">2025</span>
+    </div>
+    <p class="meta">MIT Beaver Works Summer Institute &middot; 160+ engineering hours &middot; MATLAB, Python, C++</p>
+    <ul>
+      <li>Built a custom airframe and electronics with a SAR payload; implemented PID flight control, SAR backprojection, and a real-time visualization GUI.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Leadership</h2>
+  <div class="item">
+    <div class="head">
+      <span class="title">President &amp; Lead Director <span class="org">— MountainHacks / MHHS Hackathon Club</span></span>
+      <span class="when">2023 – 2026</span>
+    </div>
+    <p class="meta">Grew to 500+ members; directed the Central Valley's largest student hackathon (200+ attendees, $150K prizes, GitHub and AoPS sponsors); raised $20K for STEM programming.</p>
+  </div>
+  <div class="item">
+    <div class="head">
+      <span class="title">Co-Founder &amp; Trustee <span class="org">— ServingHandz, national nonprofit</span></span>
+      <span class="when">2021 – 2026</span>
+    </div>
+    <p class="meta">Scaled to 45,000+ meals, 35 chapters, and 1,600+ volunteers; built the legal and financial infrastructure from scratch.</p>
+  </div>
+  <div class="item">
+    <div class="head">
+      <span class="title">Lead Programmer <span class="org">— VEX Robotics 19359 &amp; FTC 23649</span></span>
+      <span class="when">2022 – 2026</span>
+    </div>
+    <p class="meta">Led autonomous routines, sensor fusion, and pneumatics; qualified for California state competition in both programs.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Skills</h2>
+  <dl class="skills">
+    <dt>Embedded</dt>
+    <dd>ESP32, Arduino, Raspberry Pi, Orange Pi, KiCAD, Fusion 360, 3D printing, UART / I2C / SPI, PWM / PID, LiPo power</dd>
+    <dt>Languages</dt>
+    <dd>C / C++, Python, TypeScript, MATLAB, Embedded Linux, OpenSCAD</dd>
+    <dt>Software</dt>
+    <dd>React, Next.js, FastAPI, Node.js, Supabase, OpenCV, Three.js, Git / GitHub Actions, Vercel</dd>
+  </dl>
+</section>
+
+<section>
+  <h2>Awards</h2>
+  <p class="awards">
+    <b>9 winning projects across 15 hackathons</b> &middot; CruzHacks Best Hardware Hack 2026 &amp; 2025 (back to back) &middot; WizardHacks 2026 You.com Best Project &middot; CruzHacks 2023 Finalist &middot; DECA California State Champion, ICDC top 20 &middot; TSA Engineering Design State Champion &amp; National Qualifier &middot; Oracle Java Certified &middot; President's Volunteer Service Award, Gold (300+ hours)
+  </p>
+</section>
+
+</body>
+</html>

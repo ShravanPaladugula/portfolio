@@ -1,55 +1,52 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
+import { awards } from "@/content/experience";
 import { profile } from "@/content/profile";
-import { SectionLabel } from "./SectionLabel";
 
 export function Education() {
-  const reduce = useReducedMotion();
-
   return (
-    <section
-      className="band-invert relative overflow-hidden section-pad"
-      id="education"
-      aria-label="Education"
-    >
-      <div className="content-wrap relative z-10">
-        <SectionLabel index="07" label="Education" invert />
-        <motion.h2
-          className="mb-12 max-w-2xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-        >
-          Training ground.
-        </motion.h2>
+    <section id="education" className="wrap section">
+      <div className="grid gap-x-14 gap-y-12 lg:grid-cols-2">
+        <div>
+          <div className="rule">
+            <span className="eyebrow">Education</span>
+          </div>
 
-        <ul className="divide-y divide-[color:var(--invert-line)] border-y border-[color:var(--invert-line)]">
-          {profile.education.map((edu, i) => (
-            <motion.li
-              key={edu.school}
-              className="grid gap-3 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline sm:gap-10"
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: i * 0.08 }}
-            >
-              <div>
-                <h3 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
-                  {edu.school}
-                </h3>
-                <p className="mt-2 text-[color:var(--invert-muted)]">{edu.detail}</p>
-                <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[color:var(--invert-muted)]">
-                  {edu.place}
-                </p>
-              </div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-accent">
-                {edu.when}
+          {profile.education.map((e) => (
+            <article key={e.school} className="border-t border-line py-6">
+              <p className="eyebrow">
+                {e.when} · {e.place}
               </p>
-            </motion.li>
+              <h3 className="mt-2 font-serif text-xl leading-tight tracking-tight">
+                {e.school}
+              </h3>
+              <p className="mt-1 max-w-[46ch] text-[0.9375rem] leading-relaxed text-muted">
+                {e.detail}
+              </p>
+            </article>
           ))}
-        </ul>
+        </div>
+
+        <div>
+          <div className="rule">
+            <span className="eyebrow">Awards</span>
+            <span className="eyebrow ml-auto">{awards.length}</span>
+          </div>
+
+          <ul>
+            {awards.map((a) => (
+              <li
+                key={a.title}
+                className="flex flex-col gap-0.5 border-t border-line py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+              >
+                <span className="text-[0.9375rem] leading-snug sm:flex-1">
+                  {a.title}
+                </span>
+                <span className="eyebrow min-w-0 normal-case leading-snug tracking-[0.08em] sm:max-w-[16rem] sm:flex-1 sm:text-right">
+                  {a.detail}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

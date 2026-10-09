@@ -1,145 +1,234 @@
-"use client";
+import { featured, otherBuilds, type Project } from "@/content/projects";
+import { Photo } from "./Photo";
 
-import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
-import { projects } from "@/content/projects";
-import { SectionLabel } from "./SectionLabel";
-import { ProjectPanel } from "./ProjectPanel";
+function teamLabel(team: readonly string[]) {
+  return team.length === 0
+    ? "Solo build"
+    : `Team of ${team.length + 1} — with ${team.join(", ")}`;
+}
 
-export function Work() {
-  const [openId, setOpenId] = useState<string | null>(projects[0]?.id ?? null);
-  const [hoverId, setHoverId] = useState<string | null>(null);
-  const reduce = useReducedMotion();
-  const featured = projects.slice(0, 4);
-  const stageId = hoverId ?? openId ?? projects[0]?.id;
-  const stage = projects.find((p) => p.id === stageId) ?? projects[0];
+function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="border-t border-line py-3.5">
+      <dt className="eyebrow">{label}</dt>
+      <dd className="mt-1.5 text-[0.9375rem] leading-relaxed">{children}</dd>
+    </div>
+  );
+}
+
+function FeaturedProject({ project, index }: { project: Project; index: number }) {
+  const [lead, ...rest] = project.photos;
 
   return (
-    <section id="work" className="relative overflow-hidden" aria-label="Selected work">
-      <div className="relative z-10 border-y border-line bg-[color-mix(in_oklab,var(--bg)_94%,var(--fg))]">
-        <div className="content-wrap grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="relative min-h-[280px] overflow-hidden border-b border-line lg:min-h-[420px] lg:border-b-0 lg:border-r">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={stage.id}
-                className="absolute inset-0"
-                initial={reduce ? false : { opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={reduce ? undefined : { opacity: 0 }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <Image
-                  src={stage.image}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/35 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent">
-                    Now viewing · {stage.year}
-                  </p>
-                  <p className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-                    {stage.name}
-                  </p>
-                  {stage.award && (
-                    <p className="mt-2 max-w-md font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-                      {stage.award}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <div className="flex flex-col justify-between px-[clamp(1.25rem,4vw,2.5rem)] py-7">
-            <div>
-              <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
-                Featured work
-              </p>
-              <ul className="space-y-1">
-                {featured.map((project, i) => {
-                  const active = stage.id === project.id;
-                  return (
-                    <li key={project.id}>
-                      <button
-                        type="button"
-                        onMouseEnter={() => setHoverId(project.id)}
-                        onMouseLeave={() => setHoverId(null)}
-                        onFocus={() => setHoverId(project.id)}
-                        onBlur={() => setHoverId(null)}
-                        onClick={() => {
-                          setOpenId(project.id);
-                          document
-                            .getElementById(`project-${project.id}`)
-                            ?.scrollIntoView({ behavior: "smooth", block: "center" });
-                        }}
-                        className={`group flex w-full items-baseline justify-between gap-4 border-b border-line py-3.5 text-left transition-colors ${
-                          active ? "text-fg" : "text-muted hover:text-fg"
-                        }`}
-                      >
-                        <span className="flex min-w-0 items-baseline gap-3">
-                          <span className="font-mono text-[10px] text-muted">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span
-                            className={`font-display text-xl font-bold tracking-tight sm:text-2xl ${
-                              active ? "text-accent" : ""
-                            }`}
-                          >
-                            {project.name}
-                          </span>
-                        </span>
-                        <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em]">
-                          {project.year}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-              Hover to preview · Click to open dossier
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="section-pad content-wrap">
-        <SectionLabel index="02" label="Selected Work" />
-        <motion.h2
-          className="mb-4 max-w-3xl font-display text-[clamp(2rem,4.5vw,3.5rem)] font-bold leading-[1.05] tracking-tight"
-          initial={reduce ? false : { opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-        >
-          Build notes, problems, and iterations.
-        </motion.h2>
-        <p className="mb-12 max-w-xl text-muted">
-          Open a project for the full build dossier — what shipped, what broke,
-          and how it got better.
+    <article className="border-t border-line-strong pt-8">
+      <header>
+        <p className="eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span>{String(index + 1).padStart(2, "0")}</span>
+          <span aria-hidden>·</span>
+          <span>{project.year}</span>
+          {project.venue && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{project.venue}</span>
+            </>
+          )}
+          {project.award && (
+            <>
+              <span aria-hidden>·</span>
+              <span className="text-accent">{project.award}</span>
+            </>
+          )}
         </p>
 
+        <h3 className="mt-3 font-serif text-[clamp(2rem,5.5vw,3.25rem)] leading-[1.02] tracking-[-0.015em]">
+          {project.name}
+        </h3>
+        <p className="mt-2 max-w-[48ch] text-[clamp(1.0625rem,2.2vw,1.375rem)] leading-snug text-muted">
+          {project.tagline}
+        </p>
+      </header>
+
+      <div className="mt-9 grid gap-x-12 gap-y-9 lg:grid-cols-[1.25fr_1fr]">
         <div>
-          {projects.map((project, i) => (
-            <div key={project.id} id={`project-${project.id}`}>
-              <ProjectPanel
-                project={project}
-                index={i}
-                open={openId === project.id}
-                onToggle={() =>
-                  setOpenId((cur) => (cur === project.id ? null : project.id))
-                }
+          <p className="max-w-[62ch] leading-[1.7]">{project.summary}</p>
+
+          <h4 className="eyebrow mt-8">What it took</h4>
+          <ul className="mt-3 max-w-[62ch] space-y-2.5">
+            {project.build.map((item) => (
+              <li
+                key={item}
+                className="relative pl-5 leading-[1.65] text-[0.9375rem] before:absolute before:left-0 before:top-[0.65em] before:h-px before:w-2.5 before:bg-line-strong"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+
+          <h4 className="eyebrow mt-8">The hard part</h4>
+          <p className="mt-3 max-w-[62ch] text-[0.9375rem] leading-[1.7] text-muted">
+            {project.challenge}
+          </p>
+        </div>
+
+        <div className="self-start">
+          {project.mark && (
+            <div className="mb-6 flex h-24 w-fit items-center border border-line bg-white px-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={project.mark.src}
+                alt={project.mark.alt}
+                className="max-h-14 w-auto max-w-[13rem] object-contain"
               />
             </div>
-          ))}
+          )}
+
+          <dl className="border-b border-line">
+            <Meta label="My role">{project.role}</Meta>
+            {project.team && (
+              <Meta label="Team">{teamLabel(project.team)}</Meta>
+            )}
+            <Meta label="Built with">
+              <span className="flex flex-wrap gap-1.5">
+                {project.tools.map((t) => (
+                  <span key={t} className="tag">
+                    {t}
+                  </span>
+                ))}
+              </span>
+            </Meta>
+            {project.links.length > 0 && (
+              <Meta label="Links">
+                <span className="flex flex-wrap gap-x-4">
+                  {project.links.map((l) => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ul"
+                    >
+                      {l.label} ↗
+                    </a>
+                  ))}
+                </span>
+              </Meta>
+            )}
+          </dl>
         </div>
       </div>
+
+      {lead && (
+        <div className="mt-10">
+          <Photo
+            src={lead.src}
+            alt={lead.alt}
+            caption={lead.caption}
+            aspect="aspect-[16/10]"
+            sizes="(max-width: 1120px) 100vw, 1120px"
+            fit={lead.fit}
+            priority={index === 1}
+          />
+          {rest.length > 0 && (
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
+              {rest.map((p) => (
+                <Photo
+                  key={p.src}
+                  src={p.src}
+                  alt={p.alt}
+                  caption={p.caption}
+                  aspect="aspect-square"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  fit={p.fit}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
+
+export function Work() {
+  return (
+    <section id="work" className="wrap section">
+      <div className="rule">
+        <span className="eyebrow">Selected work</span>
+        <span className="eyebrow ml-auto">{featured.length} builds</span>
+      </div>
+
+      <div className="space-y-20 sm:space-y-28">
+        {featured.map((p, i) => (
+          <FeaturedProject key={p.id} project={p} index={i} />
+        ))}
+      </div>
+
+      {/* Other builds ------------------------------------------------ */}
+      <div className="rule mt-24">
+        <span className="eyebrow">Also built</span>
+        <span className="eyebrow ml-auto">{otherBuilds.length} more</span>
+      </div>
+
+      <ul className="grid gap-x-10 gap-y-10 sm:grid-cols-2">
+        {otherBuilds.map((p) => (
+          <li key={p.id} className="flex gap-5 border-t border-line pt-5">
+            {p.image && (
+              <div className="relative hidden h-24 w-24 shrink-0 overflow-hidden border border-line bg-sunk sm:block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.image}
+                  alt=""
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <p className="eyebrow flex flex-wrap items-center gap-x-2">
+                <span>{p.year}</span>
+                {p.venue && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>{p.venue}</span>
+                  </>
+                )}
+                {p.award && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span className="text-accent">{p.award}</span>
+                  </>
+                )}
+              </p>
+
+              <h3 className="mt-1.5 font-serif text-xl tracking-tight">
+                {p.href ? (
+                  <a
+                    href={p.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="transition-colors hover:text-accent"
+                  >
+                    {p.name} <span className="text-muted">↗</span>
+                  </a>
+                ) : (
+                  p.name
+                )}
+              </h3>
+
+              <p className="mt-2 text-[0.9375rem] leading-[1.6] text-muted">
+                {p.blurb}
+              </p>
+
+              {p.team && (
+                <p className="eyebrow mt-2.5 normal-case tracking-[0.08em]">
+                  {teamLabel(p.team)}
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -1,202 +1,75 @@
-"use client";
-
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from "framer-motion";
-import Image from "next/image";
-import { useRef, type MouseEvent } from "react";
 import { profile } from "@/content/profile";
 
-const first = "SHRAVAN".split("");
-const last = "PALADUGULA".split("");
-
 export function Hero() {
-  const reduce = useReducedMotion();
-  const ref = useRef<HTMLElement>(null);
-  const mx = useMotionValue(70);
-  const my = useMotionValue(40);
-  const spotlight = useMotionTemplate`radial-gradient(520px circle at ${mx}% ${my}%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 55%)`;
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-  const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "22%"]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
-  function onMove(e: MouseEvent<HTMLElement>) {
-    if (reduce) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    mx.set(((e.clientX - rect.left) / rect.width) * 100);
-    my.set(((e.clientY - rect.top) / rect.height) * 100);
-  }
-
   return (
-    <section
-      ref={ref}
-      id="top"
-      onMouseMove={onMove}
-      className="relative flex min-h-[100svh] flex-col overflow-hidden"
-      aria-label="Hero"
-    >
-      <motion.div
-        className="absolute inset-0"
-        style={reduce ? undefined : { y: imageY }}
-        aria-hidden
-      >
-        <Image
-          src="/portrait.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover object-[70%_center] opacity-[0.48] saturate-[0.9] contrast-[1.08] sm:object-[74%_center]"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/90 to-bg/25" />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/20 to-bg/60" />
-        <motion.div className="absolute inset-0" style={{ background: spotlight }} />
-        <div className="tech-grid absolute inset-0 opacity-[0.16]" />
-        <div className="hero-scanlines absolute inset-0 opacity-[0.04]" />
-      </motion.div>
+    <section id="top" className="wrap pt-14 pb-16 sm:pt-20 sm:pb-24">
+      <p className="eyebrow">{profile.role}</p>
 
-      <motion.div
-        className="content-wrap relative z-10 flex flex-1 flex-col justify-end px-[clamp(1.25rem,4vw,4rem)] pb-16 pt-28 sm:pb-20 lg:pb-28"
-        style={reduce ? undefined : { y: contentY, opacity: contentOpacity }}
-      >
-        <motion.p
-          className="mb-5 font-mono text-xs uppercase tracking-[0.3em] text-accent sm:text-[13px]"
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.05 }}
+      <h1 className="mt-5 max-w-[16ch] font-serif text-[clamp(2.75rem,8.5vw,5.5rem)] font-normal leading-[0.98] tracking-[-0.02em]">
+        {profile.headline}
+      </h1>
+
+      <p className="mt-7 max-w-[62ch] text-[clamp(1rem,1.9vw,1.1875rem)] leading-[1.65] text-muted">
+        {profile.intro}
+      </p>
+
+      <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <a
+          href={profile.links.resume}
+          className="border border-fg px-4 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:bg-accent hover:text-bg"
         >
-          {profile.role}
-        </motion.p>
-
-        <h1 className="font-display text-[clamp(3.25rem,12vw,9rem)] font-bold leading-[0.86] tracking-[-0.045em] text-fg">
-          <span className="block overflow-hidden">
-            {first.map((ch, i) => (
-              <motion.span
-                key={`f-${ch}-${i}`}
-                className="inline-block"
-                initial={reduce ? false : { y: "110%", rotate: 4 }}
-                animate={{ y: "0%", rotate: 0 }}
-                transition={{
-                  duration: 0.7,
-                  delay: 0.12 + i * 0.035,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-          </span>
-          <span className="mt-1 block overflow-hidden">
-            {last.map((ch, i) => (
-              <motion.span
-                key={`l-${ch}-${i}`}
-                className="inline-block"
-                initial={reduce ? false : { y: "110%", rotate: 4 }}
-                animate={{ y: "0%", rotate: 0 }}
-                transition={{
-                  duration: 0.7,
-                  delay: 0.28 + i * 0.03,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-              >
-                {ch}
-              </motion.span>
-            ))}
-            <motion.span
-              className="signal-dot ml-3 inline-block align-middle"
-              aria-hidden
-              initial={reduce ? false : { scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.85, type: "spring", stiffness: 260, damping: 18 }}
-            />
-          </span>
-        </h1>
-
-        <motion.div
-          className="mt-8 h-px w-full max-w-lg overflow-hidden bg-line"
-          initial={reduce ? false : { scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          style={{ transformOrigin: "left" }}
-          aria-hidden
-        >
-          <span className="block h-full w-1/3 bg-accent signal-scan" />
-        </motion.div>
-
-        <motion.p
-          className="mt-8 max-w-xl font-display text-[clamp(1.4rem,2.8vw,2.15rem)] font-semibold tracking-tight text-fg"
-          initial={reduce ? false : { opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.58 }}
-        >
-          {profile.headline}
-        </motion.p>
-
-        <motion.p
-          className="mt-4 max-w-lg text-base leading-relaxed text-muted sm:text-lg"
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.68 }}
-        >
-          {profile.tagline}
-        </motion.p>
-
-        <motion.div
-          className="mt-10 flex flex-wrap items-center gap-3"
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.78 }}
-        >
+          Download résumé
+        </a>
+        <a href={`mailto:${profile.email}`} className="ul text-sm">
+          {profile.email}
+        </a>
+        <span className="flex items-center gap-x-4 text-sm">
           <a
-            href="#work"
-            className="inline-flex items-center bg-fg px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-bg transition-colors hover:bg-accent hover:text-[color:var(--selection-fg)]"
+            href={profile.links.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ul"
           >
-            See my work
+            GitHub
           </a>
           <a
-            href={profile.links.resume}
-            className="inline-flex items-center border border-fg/45 px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-fg transition-colors hover:border-accent hover:text-accent"
+            href={profile.links.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ul"
           >
-            Resume
+            LinkedIn
           </a>
           <a
-            href={`mailto:${profile.email}`}
-            className="inline-flex items-center border border-fg/45 px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.2em] text-fg transition-colors hover:border-accent hover:text-accent"
+            href={profile.links.devpost}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ul"
           >
-            Email
+            Devpost
           </a>
-        </motion.div>
+        </span>
+      </div>
 
-        <motion.div
-          className="mt-14 flex items-end justify-between gap-6"
-          initial={reduce ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.95 }}
-        >
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted">
-            {profile.location}
-          </p>
-          <a
-            href="#about"
-            className="group hidden items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-muted transition-colors hover:text-accent sm:inline-flex"
+      <dl className="mt-14 grid grid-cols-3 gap-px overflow-hidden border-y border-line bg-line sm:max-w-2xl">
+        {profile.stats.map((s) => (
+          <div
+            key={s.label}
+            className="flex flex-col-reverse bg-bg px-1 py-5 sm:px-4"
           >
-            Enter
-            <span className="relative h-8 w-px overflow-hidden bg-line">
-              <span className="absolute inset-x-0 top-0 h-3 bg-accent scroll-pip" />
-            </span>
-          </a>
-        </motion.div>
-      </motion.div>
+            <dt className="eyebrow mt-2 normal-case tracking-[0.1em]">
+              {s.label}
+            </dt>
+            <dd className="font-serif text-[clamp(1.75rem,5vw,2.5rem)] leading-none tracking-tight">
+              {s.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <p className="mt-6 text-sm text-muted">
+        <span className="text-accent">●</span> {profile.availability}
+      </p>
     </section>
   );
 }

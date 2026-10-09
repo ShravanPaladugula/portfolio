@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio — Shravan Paladugula
 
-## Getting Started
-
-First, run the development server:
+Next.js 16 (App Router) + Tailwind v4. Static, no client-side state.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev      # http://localhost:3000
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where the content lives
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+All copy is data, not markup. Edit these three files and the pages follow:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| File | Holds |
+| --- | --- |
+| `src/content/profile.ts` | Name, headline, intro, stats, about, toolbox, education |
+| `src/content/projects.ts` | `featured[]` (full write-ups) and `otherBuilds[]` (compact entries) |
+| `src/content/experience.ts` | `experience[]`, `leadership[]`, `awards[]` |
 
-## Learn More
+### Crediting work honestly
 
-To learn more about Next.js, take a look at the following resources:
+Every project carries a `role` (what you specifically owned) and a `team`:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```ts
+team: ["Yash Kathrani", "Dhruv Gupta"]  // named collaborators
+team: []                                // confirmed solo
+// omitted                              // not confirmed — the Team row is
+//                                      // hidden rather than guessing
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Leave `team` off rather than asserting "solo build" on something you have not
+verified. The site renders nothing instead of a claim.
 
-## Deploy on Vercel
+## Images
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`public/projects/` holds real build photography only — no placeholder art.
+Source files were pulled from the public Devpost project pages.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+A photo entry can set `fit: "contain"` for CAD renders and UI screenshots that
+sit on a white background and must not be cropped; everything else is
+`object-cover`.
+
+Projects with no real photo (CONJR, UAS-SAR, Powerchair) render as typographic
+blocks. That is deliberate — an empty frame or stock graphic reads worse than
+no image. Drop a real file into `public/projects/` and add it to the project's
+`photos` array when you have one.
+
+A `mark` (wordmark/logo) renders as a small tile beside the metadata, never as
+a lead image.
+
+## Résumé
+
+`public/resume.pdf` is generated from `resume/resume.html`:
+
+```bash
+npm install --no-save playwright-core   # once; needs Chrome installed
+node resume/build.mjs
+```
+
+The script fails loudly if the output spills past one page.
+
+`resume/resume.html` sets `@page { margin: 0 }` deliberately — the page margins
+come from `build.mjs`. Setting both makes Chrome stack them and paginate.
+
+## Theming
+
+Light by default, dark via `prefers-color-scheme` — no toggle, no stored
+preference, no hydration flash. Tokens are defined once in
+`src/app/globals.css`; only the custom properties change between themes.

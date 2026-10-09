@@ -1,28 +1,37 @@
 export const profile = {
   name: "Shravan Paladugula",
-  monogram: "SP",
-  role: "Incoming Computer Engineering · UC San Diego",
+  initials: "SP",
+  role: "Computer Engineering · UC San Diego",
   headline: "I build systems that leave the screen.",
-  tagline:
-    "Embedded systems, firmware, edge AI, and full-stack fabrication pipelines — from PCB and enclosure to production software.",
-  location: "Mountain House, CA → La Jolla, CA",
+  intro:
+    "First-year computer engineering student at UC San Diego. I work at the point where software becomes a physical system — firmware, power, enclosures, and the pipelines that turn an idea into something you can hold.",
+  location: "La Jolla, CA",
   email: "shravan.paladugula@gmail.com",
   phone: "(925) 493-9513",
+  availability: "Open to software and embedded / firmware internships.",
+
   links: {
     github: "https://github.com/ShravanPaladugula",
     linkedin: "https://www.linkedin.com/in/shravan-paladugula",
     devpost: "https://devpost.com/ShravanPaladugula",
     resume: "/resume.pdf",
   },
-  about: {
-    title: "Engineering starts where code meets matter.",
-    paragraphs: [
-      "I am most interested in the point where software becomes a physical system — sensors, firmware, PCBs, enclosures, and the pipelines that turn an idea into something you can hold.",
-      "My work spans edge AI attendance hardware, voice-to-fabrication agents, clinical communication devices, and SAR drone platforms. Outside the lab I lead MountainHacks and build nonprofit infrastructure at ServingHandz.",
-    ],
-  },
-  systems: {
-    embedded: [
+
+  /* Verifiable against the public Devpost profile. */
+  stats: [
+    { value: "15", label: "Hackathons entered" },
+    { value: "9", label: "Winning projects" },
+    { value: "500+", label: "MountainHacks members" },
+  ],
+
+  about: [
+    "Most of what I build is a team effort, and almost all of it has a physical layer. On a four-person hackathon team I am usually the one on hardware — the power system, the enclosure, the firmware, and the serial glue that makes the software side actually reach a motor or a screen.",
+    "That split is deliberate. Recognition accuracy, model choice, and backend design are rarely what sinks a demo. What sinks it is a brownout mid-capture, a servo that dispenses two pills instead of one, or a camera framed six inches too low. I like owning that layer.",
+    "Outside coursework I run MountainHacks, and I spent three years operating a production 3D printing studio that paid for itself.",
+  ],
+
+  toolbox: {
+    "Embedded & hardware": [
       "ESP32",
       "Arduino",
       "Raspberry Pi",
@@ -34,40 +43,40 @@ export const profile = {
       "PWM / PID",
       "LiPo power",
     ],
-    firmware: [
+    "Languages & systems": [
       "C / C++",
       "Python",
+      "TypeScript",
       "MATLAB",
       "Embedded Linux",
-      "OTA pipelines",
       "OpenSCAD",
-      "CuraEngine",
-      "Moonraker",
       "Sensor fusion",
     ],
-    fullstack: [
-      "TypeScript",
+    "Software & tooling": [
       "React",
+      "Next.js",
       "FastAPI",
       "Node.js",
       "Supabase",
-      "Three.js",
       "OpenCV",
+      "Three.js",
+      "Git / GitHub Actions",
       "Vercel",
-      "GitHub Actions",
     ],
   },
+
   education: [
     {
       school: "University of California, San Diego",
       detail: "B.S. Computer Engineering · Jacobs School of Engineering",
-      when: "Incoming Fall 2026 · Sep 2026 – May 2030",
+      when: "2026 – 2030 (expected)",
       place: "La Jolla, CA",
     },
     {
       school: "Mountain House High School",
-      detail: "GPA 4.64 · Ranked 6/615 · Distinguished Award (Top 2%) · AP Scholar with Distinction",
-      when: "May 2026",
+      detail:
+        "GPA 4.64 · Ranked 6 of 615 · Distinguished Award (top 2%) · AP Scholar with Distinction",
+      when: "Graduated 2026",
       place: "Mountain House, CA",
     },
   ],
