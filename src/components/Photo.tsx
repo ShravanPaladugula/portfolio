@@ -41,7 +41,7 @@ export function Photo({
         />
       </div>
       {caption && (
-        <figcaption className="eyebrow mt-2.5 normal-case tracking-[0.08em]">
+        <figcaption className="label mt-2 normal-case tracking-[0.04em]">
           {caption}
         </figcaption>
       )}

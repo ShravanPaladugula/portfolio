@@ -10,25 +10,19 @@ const sections = [
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-line bg-bg/90 backdrop-blur-md">
       <nav
         aria-label="Primary"
         className="wrap flex h-14 items-center justify-between gap-6"
       >
-        <a
-          href="#top"
-          className="font-serif text-lg leading-none tracking-tight transition-colors hover:text-accent"
-        >
+        <a href="#top" className="headline text-base leading-none">
           {profile.name}
         </a>
 
         <ul className="hidden items-center gap-6 sm:flex">
           {sections.map((s) => (
             <li key={s.href}>
-              <a
-                href={s.href}
-                className="eyebrow transition-colors hover:text-fg"
-              >
+              <a href={s.href} className="label transition-colors hover:text-fg">
                 {s.label}
               </a>
             </li>
@@ -36,7 +30,7 @@ export function Nav() {
           <li>
             <a
               href={profile.links.resume}
-              className="eyebrow border border-line-strong px-3 py-1.5 text-fg transition-colors hover:border-accent hover:text-accent"
+              className="label label-fg border border-line-strong px-3 py-1.5 transition-opacity hover:opacity-60"
             >
               Résumé
             </a>
@@ -45,7 +39,7 @@ export function Nav() {
 
         <a
           href={`mailto:${profile.email}`}
-          className="eyebrow text-fg transition-colors hover:text-accent sm:hidden"
+          className="label label-fg sm:hidden"
         >
           Email
         </a>

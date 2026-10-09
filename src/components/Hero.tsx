@@ -2,28 +2,41 @@ import { profile } from "@/content/profile";
 
 export function Hero() {
   return (
-    <section id="top" className="wrap pt-14 pb-16 sm:pt-20 sm:pb-24">
-      <p className="eyebrow">{profile.role}</p>
+    <section id="top" className="wrap pt-12 pb-2 sm:pt-20 sm:pb-4">
+      <p className="label">{profile.role}</p>
 
-      <h1 className="mt-5 max-w-[16ch] font-serif text-[clamp(2.75rem,8.5vw,5.5rem)] font-normal leading-[0.98] tracking-[-0.02em]">
+      <h1 className="display mt-4 max-w-[15ch] text-[clamp(2.75rem,10vw,6.5rem)]">
         {profile.headline}
       </h1>
 
-      <p className="mt-7 max-w-[62ch] text-[clamp(1rem,1.9vw,1.1875rem)] leading-[1.65] text-muted">
-        {profile.intro}
-      </p>
+      <div className="mt-9 grid gap-x-14 gap-y-7 border-t-2 border-line-strong pt-7 lg:grid-cols-[1.4fr_1fr]">
+        <p className="max-w-[58ch] text-[clamp(1.0625rem,2vw,1.25rem)] leading-[1.6]">
+          {profile.intro}
+        </p>
 
-      <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <dl className="grid grid-cols-3 gap-x-4 self-start">
+          {profile.stats.map((s) => (
+            <div key={s.label} className="flex flex-col-reverse">
+              <dt className="label mt-1.5">{s.label}</dt>
+              <dd className="display text-[clamp(1.75rem,4vw,2.5rem)]">
+                {s.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div className="mt-9 flex flex-wrap items-center gap-x-5 gap-y-3">
         <a
           href={profile.links.resume}
-          className="border border-fg px-4 py-2.5 text-sm font-medium transition-colors hover:border-accent hover:bg-accent hover:text-bg"
+          className="bg-fg px-5 py-2.5 text-sm font-semibold text-bg transition-opacity hover:opacity-80"
         >
           Download résumé
         </a>
-        <a href={`mailto:${profile.email}`} className="ul text-sm">
+        <a href={`mailto:${profile.email}`} className="ul text-sm font-medium">
           {profile.email}
         </a>
-        <span className="flex items-center gap-x-4 text-sm">
+        <span className="flex flex-wrap items-center gap-x-4 text-sm font-medium">
           <a
             href={profile.links.github}
             target="_blank"
@@ -51,25 +64,7 @@ export function Hero() {
         </span>
       </div>
 
-      <dl className="mt-14 grid grid-cols-3 gap-px overflow-hidden border-y border-line bg-line sm:max-w-2xl">
-        {profile.stats.map((s) => (
-          <div
-            key={s.label}
-            className="flex flex-col-reverse bg-bg px-1 py-5 sm:px-4"
-          >
-            <dt className="eyebrow mt-2 normal-case tracking-[0.1em]">
-              {s.label}
-            </dt>
-            <dd className="font-serif text-[clamp(1.75rem,5vw,2.5rem)] leading-none tracking-tight">
-              {s.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-
-      <p className="mt-6 text-sm text-muted">
-        <span className="text-accent">●</span> {profile.availability}
-      </p>
+      <p className="label mt-7">{profile.availability}</p>
     </section>
   );
 }

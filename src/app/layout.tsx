@@ -1,25 +1,11 @@
 import type { Metadata } from "next";
-import { Instrument_Serif, Inter, JetBrains_Mono } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { profile } from "@/content/profile";
 import "./globals.css";
 
-const display = Instrument_Serif({
-  variable: "--font-display",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  weight: ["400"],
-  display: "swap",
-});
-
-const body = Inter({
-  variable: "--font-body",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const code = JetBrains_Mono({
-  variable: "--font-code",
-  subsets: ["latin"],
-  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -46,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${body.variable} ${code.variable} antialiased`}
+      className={`${archivo.variable} antialiased`}
     >
       <body>{children}</body>
     </html>

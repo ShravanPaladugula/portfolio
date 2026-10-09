@@ -21,42 +21,40 @@ export function Contact() {
   return (
     <section id="contact" className="wrap section">
       <div className="rule">
-        <span className="eyebrow">Contact</span>
+        <h2 className="label label-fg">Contact</h2>
       </div>
 
-      <h2 className="max-w-[16ch] font-serif text-[clamp(2rem,5.5vw,3.5rem)] leading-[1.03] tracking-[-0.015em]">
+      <p className="display max-w-[14ch] text-[clamp(2.25rem,7vw,4.25rem)]">
         Let&rsquo;s build the next system.
-      </h2>
+      </p>
 
-      <p className="mt-5 max-w-[52ch] leading-relaxed text-muted">
+      <p className="mt-6 max-w-[50ch] text-[1.0125rem] leading-[1.65] text-muted">
         {profile.availability} The fastest way to reach me is email.
       </p>
 
-      <ul className="mt-10 border-t border-line">
+      <ul className="mt-9 border-t border-line">
         {rows.map((r) => (
           <li key={r.label} className="border-b border-line">
             <a
               href={r.href}
               target={r.href.startsWith("http") ? "_blank" : undefined}
               rel={r.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="group flex items-baseline justify-between gap-6 py-4 transition-colors hover:text-accent"
+              className="group flex items-center justify-between gap-6 py-3.5"
             >
-              <span className="eyebrow transition-colors group-hover:text-accent">
-                {r.label}
-              </span>
-              <span className="font-serif text-lg tracking-tight sm:text-xl">
-                {r.value}
+              <span className="label group-hover:text-fg">{r.label}</span>
+              <span className="headline text-base sm:text-lg">
+                <span className="ul">{r.value}</span>
               </span>
             </a>
           </li>
         ))}
       </ul>
 
-      <footer className="mt-14 flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="eyebrow normal-case tracking-[0.08em]">
+      <footer className="mt-12 flex flex-col gap-3 border-t-2 border-line-strong pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="label">
           © {new Date().getFullYear()} {profile.name} · {profile.location}
         </p>
-        <a href="#top" className="eyebrow transition-colors hover:text-accent">
+        <a href="#top" className="label transition-colors hover:text-fg">
           Back to top ↑
         </a>
       </footer>

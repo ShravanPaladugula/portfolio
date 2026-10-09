@@ -14,8 +14,8 @@ export default function OpenGraphImage() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          background: "#FBFBF9",
-          color: "#141416",
+          background: "#FFFFFF",
+          color: "#000000",
           padding: 72,
           fontFamily: "ui-sans-serif, system-ui, sans-serif",
         }}
@@ -24,58 +24,49 @@ export default function OpenGraphImage() {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
             width: "100%",
-            fontSize: 20,
-            letterSpacing: "0.2em",
+            fontSize: 19,
+            fontWeight: 600,
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
-            color: "#6B6B73",
+            color: "#6E6E6E",
           }}
         >
           <span>Shravan Paladugula</span>
           <span>UC San Diego · Computer Engineering</span>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div
-            style={{
-              fontSize: 82,
-              lineHeight: 1.02,
-              letterSpacing: "-0.03em",
-              maxWidth: 900,
-            }}
-          >
-            I build systems that leave the screen.
-          </div>
-          <div
-            style={{
-              marginTop: 26,
-              fontSize: 26,
-              color: "#6B6B73",
-              maxWidth: 840,
-            }}
-          >
-            Embedded systems, firmware, power, and the hardware layer of team
-            builds.
-          </div>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 92,
+            fontWeight: 700,
+            lineHeight: 0.98,
+            letterSpacing: "-0.04em",
+            maxWidth: 940,
+          }}
+        >
+          I build systems that leave the screen.
         </div>
 
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 20,
-            borderTop: "1px solid #E3E3DD",
-            paddingTop: 26,
-            fontSize: 22,
-            color: "#6B6B73",
+            gap: 16,
+            borderTop: "3px solid #000000",
+            paddingTop: 24,
+            fontSize: 21,
+            fontWeight: 600,
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
           }}
         >
-          <span style={{ color: "#B4471F" }}>15 hackathons</span>
-          <span>·</span>
-          <span style={{ color: "#B4471F" }}>9 winning projects</span>
-          <span>·</span>
-          <span>MountainHacks president</span>
+          <span>15 hackathons</span>
+          <span style={{ color: "#C4C4C4" }}>/</span>
+          <span>9 winning projects</span>
+          <span style={{ color: "#C4C4C4" }}>/</span>
+          <span>Embedded + firmware</span>
         </div>
       </div>
     ),

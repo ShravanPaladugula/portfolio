@@ -4,23 +4,22 @@ export function Toolbox() {
   return (
     <section id="toolbox" className="wrap section">
       <div className="rule">
-        <span className="eyebrow">Toolbox</span>
+        <h2 className="label label-fg">Toolbox</h2>
       </div>
 
-      <div className="grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-3">
+      <dl>
         {Object.entries(profile.toolbox).map(([group, items]) => (
-          <div key={group} className="border-t border-line pt-4">
-            <h3 className="eyebrow text-fg">{group}</h3>
-            <ul className="mt-3.5 flex flex-wrap gap-1.5">
-              {items.map((item) => (
-                <li key={item} className="tag">
-                  {item}
-                </li>
-              ))}
-            </ul>
+          <div
+            key={group}
+            className="grid gap-x-10 gap-y-2 border-b border-line py-5 sm:grid-cols-[13rem_1fr]"
+          >
+            <dt className="label label-fg">{group}</dt>
+            <dd className="text-[0.9375rem] leading-[1.7] text-muted">
+              {items.join(" · ")}
+            </dd>
           </div>
         ))}
-      </div>
+      </dl>
     </section>
   );
 }

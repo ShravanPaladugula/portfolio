@@ -4,21 +4,19 @@ import { profile } from "@/content/profile";
 export function Education() {
   return (
     <section id="education" className="wrap section">
-      <div className="grid gap-x-14 gap-y-12 lg:grid-cols-2">
+      <div className="grid gap-x-14 gap-y-11 lg:grid-cols-2">
         <div>
           <div className="rule">
-            <span className="eyebrow">Education</span>
+            <h2 className="label label-fg">Education</h2>
           </div>
 
           {profile.education.map((e) => (
-            <article key={e.school} className="border-t border-line py-6">
-              <p className="eyebrow">
+            <article key={e.school} className="border-b border-line py-5">
+              <h3 className="headline text-lg">{e.school}</h3>
+              <p className="label mt-1.5">
                 {e.when} · {e.place}
               </p>
-              <h3 className="mt-2 font-serif text-xl leading-tight tracking-tight">
-                {e.school}
-              </h3>
-              <p className="mt-1 max-w-[46ch] text-[0.9375rem] leading-relaxed text-muted">
+              <p className="mt-2 max-w-[46ch] text-[0.9375rem] leading-[1.55] text-muted">
                 {e.detail}
               </p>
             </article>
@@ -27,22 +25,17 @@ export function Education() {
 
         <div>
           <div className="rule">
-            <span className="eyebrow">Awards</span>
-            <span className="eyebrow ml-auto">{awards.length}</span>
+            <h2 className="label label-fg">Awards</h2>
+            <span className="label">{awards.length}</span>
           </div>
 
           <ul>
             {awards.map((a) => (
-              <li
-                key={a.title}
-                className="flex flex-col gap-0.5 border-t border-line py-3.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
-              >
-                <span className="text-[0.9375rem] leading-snug sm:flex-1">
+              <li key={a.title} className="border-b border-line py-3">
+                <p className="text-[0.9375rem] font-medium leading-snug">
                   {a.title}
-                </span>
-                <span className="eyebrow min-w-0 normal-case leading-snug tracking-[0.08em] sm:max-w-[16rem] sm:flex-1 sm:text-right">
-                  {a.detail}
-                </span>
+                </p>
+                <p className="label mt-1">{a.detail}</p>
               </li>
             ))}
           </ul>
